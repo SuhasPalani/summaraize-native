@@ -24,15 +24,9 @@ export default class HomeScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>
-          {this.state.title}
-        </Text>
-        <Text style={styles.ai}>
-          {this.state.tagline}
-        </Text>
-        <Text style={styles.description}>
-          {this.state.description}
-        </Text>
+        <Text style={styles.title}>{this.state.title}</Text>
+        <Text style={styles.tagline}>{this.state.tagline}</Text>
+        <Text style={styles.description}>{this.state.description}</Text>
         <TouchableOpacity
           style={styles.button}
           onPress={() => this.props.navigation.navigate('Interest')}
@@ -50,21 +44,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFF',
+    padding: 20,
   },
   title: {
     fontSize: 40,
     fontWeight: 'bold',
     color: 'black',
   },
-  ai: {
+  tagline: {
     fontSize: 18,
     color: 'red',
+    marginVertical: 10,
   },
   description: {
     fontSize: 18,
     color: 'gray',
-    marginVertical: 20,
     textAlign: 'center',
+    marginVertical: 20,
   },
   button: {
     backgroundColor: '#FF6666',

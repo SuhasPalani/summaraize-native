@@ -40,17 +40,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFF',
+    padding: 20,
   },
   text: {
     fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 20,
   },
   input: {
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
-    margin: 10,
-    width: '80%',
+    marginBottom: 20,
+    width: '100%',
     paddingHorizontal: 10,
   },
 });
