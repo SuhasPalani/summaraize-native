@@ -5,6 +5,7 @@ import HomeScreen from '../screens/HomeScreen';
 import InterestScreen from '../screens/InterestScreen';
 import SelectedTopicsScreen from '../screens/SelectedTopicsScreen';
 import FeedScreen from '../screens/FeedScreen';
+import QuestionBotScreen from '../screens/QuestionBotScreen';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,11 @@ function MainStackNavigator() {
           name="Feed"
           component={FeedScreen}
           options={{ title: 'Feed' }}
+        />
+        <Stack.Screen
+          name="QuestionBot"
+          component={QuestionBotScreen}
+          options={{ title: 'Question Bot' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -1,62 +1,82 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, Dimensions } from 'react-native';
-import { Video } from 'expo-av';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-const { height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
-export default function FeedScreen({ route }) {
-  const { topic } = route.params;
+export default function FeedScreen({ navigation }) {
+  const [liked, setLiked] = useState({});
 
-  const data = Array.from({ length: 10 }).map((_, index) => ({
-    id: String(index),
-    uri: 'https://www.example.com/video.mp4', // Placeholder URL
-    topic,
-  }));
+  const handleLike = (index) => {
+    setLiked(prevLiked => ({
+      ...prevLiked,
+      [index]: !prevLiked[index]
+    }));
+  };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Video
-        source={{ uri: item.uri }}
-        rate={1.0}
-        volume={1.0}
-        isMuted={false}
-        resizeMode="cover"
-        shouldPlay
-        style={styles.video}
-      />
-      <Text style={styles.text}>{item.topic}</Text>
-    </View>
-  );
+  const handleQuestionBot = () => {
+    navigation.navigate('QuestionBot');
+  };
+
+  const handleLink = () => {
+    // Implement link opening here
+  };
 
   return (
-    <FlatList
-      data={data}
-      keyExtractor={item => item.id}
-      renderItem={renderItem}
-      pagingEnabled
-      style={styles.container}
-    />
+    <View style={styles.container}>
+      <ScrollView
+        pagingEnabled
+        showsVerticalScrollIndicator={false}
+      >
+        {[1, 2, 3].map((item, index) => (
+          <View key={index} style={styles.feedItem}>
+            <Text style={styles.content}>Your video content goes here.</Text>
+            <View style={styles.buttons}>
+              <TouchableOpacity style={styles.button} onPress={handleLink}>
+                <Icon name="link" size={30} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, { color: liked[index] ? 'red' : 'white' }]}
+                onPress={() => handleLike(index)}
+              >
+                <Icon name="thumbs-up" size={30} color={liked[index] ? 'red' : 'white'} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={handleQuestionBot}>
+                <Icon name="question" size={30} color="white" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#000',
   },
-  itemContainer: {
-    height,
+  feedItem: {
+    width: width,
+    height: height,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  video: {
-    width: '100%',
-    height: '80%',
+  content: {
+    fontSize: 24,
+    color: 'white',
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  text: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    margin: 10,
-    color: '#000',
+  buttons: {
+    position: 'absolute',
+    right: 20,
+    top: height / 2 - 30, // Center vertically
+    flexDirection: 'column',
+  },
+  button: {
+    marginVertical: 10,
+    padding: 10,
   },
 });
