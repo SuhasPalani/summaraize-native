@@ -17,14 +17,15 @@ def get_summary():
 @app.route('/api/interest', methods=['POST'])
 def post_interest():
     data = request.json
-    user_id = data.get('user_id')
-    interests = data.get('interests')
-
-    if not user_id or not interests:
-        return jsonify({"status": "error", "message": "Invalid data"}), 400
-
-    user_interests_db[user_id] = interests
-    return jsonify({"status": "success", "message": "Interests saved successfully"})
+    print("Received JSON data:", data)  # Debug statement
+    topics = data.get('topics', [])
+    print("Extracted topics:", topics)  # Debug statement
+    response = {
+        "status": "success",
+        "message": "Topics received!",
+        "received_data": topics
+    }
+    return jsonify(response)
 
 @app.route('/api/user_interests/<user_id>', methods=['GET'])
 def get_user_interests(user_id):

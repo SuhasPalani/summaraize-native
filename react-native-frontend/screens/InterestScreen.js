@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 
 const topics = [
   'Politics', 'Business and Finance', 'Technology', 'Health and Medicine',
@@ -10,6 +10,7 @@ const topics = [
 
 export default function InterestScreen({ navigation }) {
   const [selectedTopics, setSelectedTopics] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const toggleTopic = (topic) => {
     setSelectedTopics(prev => 
@@ -20,19 +21,24 @@ export default function InterestScreen({ navigation }) {
   };
 
   const handleContinue = () => {
+    setLoading(true);
     const userId = 'user123'; // Replace with actual user ID
     fetch('http://192.168.0.200:5000/api/interest', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ user_id: userId, interests: selectedTopics }),
+      body: JSON.stringify({ topics: selectedTopics }),
     })
       .then(response => response.json())
       .then(() => {
+        setLoading(false);
         navigation.navigate('SelectedTopics', { selectedTopics });
       })
-      .catch(error => console.error('Error submitting interests:', error));
+      .catch(error => {
+        console.error('Error submitting interests:', error);
+        setLoading(false);
+      });
   };
 
   return (
@@ -55,8 +61,13 @@ export default function InterestScreen({ navigation }) {
       <TouchableOpacity
         style={styles.button}
         onPress={handleContinue}
+        disabled={loading}
       >
-        <Text style={styles.buttonText}>Continue</Text>
+        {loading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Continue</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
