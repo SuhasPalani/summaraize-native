@@ -1,80 +1,77 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, Pressable } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function SelectedTopicsScreen({ route, navigation }) {
   const { selectedTopics } = route.params;
 
   const handleTopicPress = (topic) => {
-    // Navigate to FeedScreen with the selected topic
+    console.log('Navigating to Feed with topic:', topic); // Debug log
     navigation.navigate('Feed', { topic });
   };
+
+  const renderTopic = (topic) => (
+    <Pressable
+      key={topic.name}
+      style={styles.topicBlock}
+      onPress={() => handleTopicPress(topic)}
+      android_ripple={{ color: '#ddd' }} // Ripple effect for Android
+    >
+      <Icon name={topic.icon} size={30} color="white" />
+      <Text style={styles.topicText}>{topic.name}</Text>
+    </Pressable>
+  );
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Your Selected Topics</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {selectedTopics.map(topic => (
-          <TouchableOpacity
-            key={topic.name}
-            style={styles.topicBlock}
-            onPress={() => handleTopicPress(topic)}
-          >
-            <ImageBackground
-              source={topic.image}
-              style={styles.imageBackground}
-              imageStyle={styles.imageStyle}
-            >
-              <View style={styles.overlay}>
-                <Text style={styles.topicText}>{topic.name}</Text>
-              </View>
-            </ImageBackground>
-          </TouchableOpacity>
-        ))}
+        {selectedTopics.map(renderTopic)}
       </ScrollView>
     </View>
   );
 }
 
+const { width } = Dimensions.get('window');
+const numColumns = 3.1; // Number of columns in the grid
+const itemSpacing = 10; // Space between items
+const itemSize = (width - (numColumns + 1) * itemSpacing) / numColumns; // Calculate item size based on spacing and number of columns
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#F5F5F5',
+    padding: itemSpacing,
+    backgroundColor: '#ffffff',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: itemSpacing,
     color: '#333',
   },
   scrollContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
   topicBlock: {
-    width: '48%',
-    height: 150,
-    marginBottom: 10,
+    width: itemSize, // Set width based on screen size and number of columns
+    height: itemSize, // Ensure height matches width for a square grid item
+    margin: itemSpacing / 2, // Adjust margin to create spacing between items
     borderRadius: 10,
-    overflow: 'hidden',
-  },
-  imageBackground: {
-    flex: 1,
+    backgroundColor: '#ddd', // Green background color
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  imageStyle: {
-    borderRadius: 10,
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.7)', // Adjusted opacity
-    borderRadius: 10,
-    padding: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 2,
   },
   topicText: {
-    color: 'white',
-    fontSize: 18,
+    marginTop: 5,
+    color: 'black',
+    fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
   },

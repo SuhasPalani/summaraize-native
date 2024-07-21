@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome'; // or use any other icon set
 import { API_URL } from '@env';
 
-// Define your topics and corresponding image paths
 const topics = [
-  { name: 'Artificial Intelligence', image: require('../assets/images/ai.jpeg') },
-  { name: 'Politics', image: require('../assets/images/politics.jpeg') },
-  { name: 'Sports', image: require('../assets/images/sports.jpeg') },
-  { name: 'Crypto', image: require('../assets/images/crypto.jpeg') },
-  { name: 'Stock', image: require('../assets/images/stock.jpeg') },
-  { name: 'Business and Finance', image: require('../assets/images/busfin.jpeg') },
-  { name: 'Science', image: require('../assets/images/science.jpeg') },
-  { name: 'Climate Change', image: require('../assets/images/cchange.jpeg') },
-  { name: 'Entertainment', image: require('../assets/images/entertainment.jpeg') },
-  { name: 'Music', image: require('../assets/images/music.png') },
-  { name: 'Technology', image: require('../assets/images/technology.jpeg') },
-  { name: 'Travel', image: require('../assets/images/travel.jpeg') },
-  { name: 'Renewable Energy', image: require('../assets/images/rg.jpeg') },
-  { name: 'Space Exploration', image: require('../assets/images/spaceex.jpeg') },
-  { name: 'Electric Vehicles', image: require('../assets/images/ev.jpeg') },
+  { name: 'Artificial Intelligence', icon: 'cogs' },
+  { name: 'Politics', icon: 'balance-scale' },
+  { name: 'Sports', icon: 'soccer-ball-o' },
+  { name: 'Crypto', icon: 'bitcoin' },
+  { name: 'Stock', icon: 'line-chart' },
+  { name: 'Business and Finance', icon: 'briefcase' },
+  { name: 'Science', icon: 'flask' },
+  { name: 'Climate Change', icon: 'tree' },
+  { name: 'Entertainment', icon: 'film' },
+  { name: 'Music', icon: 'music' },
+  { name: 'Technology', icon: 'laptop' },
+  { name: 'Travel', icon: 'plane' },
+  { name: 'Renewable Energy', icon: 'leaf' },
+  { name: 'Space Exploration', icon: 'rocket' },
+  { name: 'Electric Vehicles', icon: 'car' }
 ];
 
 export default function InterestScreen({ navigation }) {
@@ -26,10 +26,10 @@ export default function InterestScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
 
   const toggleTopic = (topic) => {
-    setSelectedTopics(prev => 
-      prev.includes(topic) 
-      ? prev.filter(t => t !== topic) 
-      : [...prev, topic]
+    setSelectedTopics(prev =>
+      prev.includes(topic)
+        ? prev.filter(t => t !== topic)
+        : [...prev, topic]
     );
   };
 
@@ -45,7 +45,9 @@ export default function InterestScreen({ navigation }) {
       .then(response => response.json())
       .then(() => {
         setLoading(false);
-        navigation.navigate('SelectedTopics', { selectedTopics: selectedTopics.map(topic => topics.find(t => t.name === topic)) });
+        navigation.navigate('SelectedTopics', {
+          selectedTopics: selectedTopics.map(topic => topics.find(t => t.name === topic))
+        });
       })
       .catch(error => {
         console.error('Error submitting interests:', error);
@@ -66,22 +68,23 @@ export default function InterestScreen({ navigation }) {
             ]}
             onPress={() => toggleTopic(topic.name)}
           >
-            <ImageBackground
-              source={topic.image}
-              style={styles.imageBackground}
-              imageStyle={styles.imageStyle}
-            >
-              <View style={styles.overlay}>
-                <Text style={styles.topicText}>{topic.name}</Text>
-              </View>
-            </ImageBackground>
+            <View style={styles.iconContainer}>
+              <Icon name={topic.icon} size={40} color="#fff" />
+              <Text style={styles.topicText}>{topic.name}</Text>
+            </View>
           </TouchableOpacity>
         ))}
       </ScrollView>
+      {selectedTopics.length === 0 && (
+        <Text style={styles.warning}>Please select at least one interest.</Text>
+      )}
       <TouchableOpacity
-        style={styles.button}
+        style={[
+          styles.button,
+          { backgroundColor: selectedTopics.length > 0 ? '#1560bd' : '#aaa' }
+        ]}
         onPress={handleContinue}
-        disabled={loading}
+        disabled={selectedTopics.length === 0 || loading}
       >
         {loading ? (
           <ActivityIndicator size="small" color="#fff" />
@@ -97,13 +100,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#ffffff',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#333',
+    
   },
   scrollContainer: {
     flexDirection: 'row',
@@ -111,40 +115,38 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   topicBlock: {
-    width: '48%',
-    height: 150,
+    width: '30%', // Adjusted for smaller tiles
+    height: 100,  // Adjusted height
     marginBottom: 10,
     borderRadius: 10,
-    overflow: 'hidden',
-  },
-  imageBackground: {
-    flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#ddd', // Default background color
     alignItems: 'center',
-    opacity: 0.78
+    justifyContent: 'center',
   },
-  imageStyle: {
-    borderRadius: 10,
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,1)', // Adjusted opacity
-    borderRadius: 10,
-    padding: 5,
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   topicText: {
-    color: 'white',
-    fontSize: 18,
+    color: 'black',
+    fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
+    marginTop: 5,
   },
   selected: {
-    borderColor: '#0D47A1',
-    borderWidth: 2,
+    backgroundColor: '#1560bd', // Highlight color for selected items
+  },
+  warning: {
+    color: '#d9534f', // Red color for warning message
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 15,
   },
   button: {
-    backgroundColor: '#dd7973', // Button color (green)
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 30,
     alignItems: 'center',
     marginTop: 20,
   },
