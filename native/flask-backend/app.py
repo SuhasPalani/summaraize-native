@@ -1,6 +1,11 @@
 from flask import Flask, jsonify, request
+import time
+import random
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)
 
 # Temporary in-memory storage for user interests
 user_interests_db = {}
@@ -31,6 +36,31 @@ def post_interest():
 def get_user_interests(user_id):
     interests = user_interests_db.get(user_id, [])
     return jsonify({"status": "success", "interests": interests})
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    user_message = request.json.get('message', '')
+    print(f"User message: {user_message}")  # Debug statement
+
+    # Simulate processing delay
+    time.sleep(5)
+    
+    # Generate a simple bot response
+    bot_responses = [
+        "That's an interesting question!",
+        "Can you please clarify?",
+        "I'll need to think about that.",
+        "Here is some information related to your question.",
+        "Thank you for your question! I'll get back to you soon."
+    ]
+    
+    response = {
+        "status": "success",
+        "response": random.choice(bot_responses)
+    }
+    return jsonify(response)
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
