@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { API_URL} from '@env';
+
 
 const topics = [
   'Politics', 'Business and Finance', 'Technology', 'Health and Medicine',
@@ -23,7 +25,7 @@ export default function InterestScreen({ navigation }) {
   const handleContinue = () => {
     setLoading(true);
     const userId = 'user123'; // Replace with actual user ID
-    fetch('http://192.168.0.200:5000/api/interest', {
+    fetch(`${API_URL}/api/interest`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

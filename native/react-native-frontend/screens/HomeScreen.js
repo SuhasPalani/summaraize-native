@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { API_URL} from '@env';
 
 export default class HomeScreen extends Component {
   state = {
@@ -9,7 +10,7 @@ export default class HomeScreen extends Component {
   };
 
   componentDidMount() {
-    fetch('http://192.168.0.200:5000/api/summary')
+    fetch(`${API_URL}/api/summary`)
       .then(response => response.json())
       .then(data => {
         this.setState({
