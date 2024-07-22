@@ -58,7 +58,11 @@ export default function QuestionBotScreen() {
         const response = await fetch(`${API_URL}/api/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: input }),
+          body: JSON.stringify({ question: input, record_id: '669db362ae5f97bb3f088f9d' }),
+        }).then(response =>{
+          console.log(response)
+        }).catch(error => {
+          console.log(error)
         });
 
         if (!response.ok) {
