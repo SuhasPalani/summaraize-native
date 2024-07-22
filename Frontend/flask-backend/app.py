@@ -50,7 +50,7 @@ def get_bot_response():
 
     print(response["answer"])
 
-    return response["answer"]
+    return jsonify({"status": "success", "answer": response["answer"]})
 
 
 
