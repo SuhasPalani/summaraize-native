@@ -6,13 +6,19 @@ import InterestScreen from '../screens/InterestScreen';
 import SelectedTopicsScreen from '../screens/SelectedTopicsScreen';
 import FeedScreen from '../screens/FeedScreen';
 import QuestionBotScreen from '../screens/QuestionBotScreen';
+import LoginPage from '../screens/LoginPage';
 
 const Stack = createStackNavigator();
 
 function MainStackNavigator() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator initialRouteName="Login">
+      <Stack.Screen
+          name="Login"
+          component={LoginPage}
+          options={{ title: "Login Page" }}
+        />
         <Stack.Screen
           name="Home"
           component={HomeScreen}
