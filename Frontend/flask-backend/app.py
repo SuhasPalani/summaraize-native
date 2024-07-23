@@ -14,7 +14,7 @@ mongo_uri = os.getenv('MONGO_URI')
 client = MongoClient(mongo_uri)
 db = client['Summaraize']
 user_auth = db['user_auth']
-
+interests= db['interests']
 
 app = Flask(__name__)
 CORS(app)
@@ -57,8 +57,35 @@ def signup():
     if user_id:
         return jsonify({"status": "success", "message": "User created successfully"}), 201
     else:
-        return jsonify({"status": "failure", "message": "User already exists"}), 409
-
+        return jsonify({"status": "failure", "message": "User already exists"}), 400
+    
+@app.route('/api/add_interests',methods=['POST'])
+def add_interests():
+    data = request.json
+    interests_list = data.get('interests',[])
+    user_id = data.get('user_id')
+    
+    if not ObjectId.is_valid(user_id):
+        return jsonify({"status": "failure", "message": "Invalid user ID"}), 400
+    
+    if not user_auth.find_one({'_id':ObjectId(user_id)}):
+        return jsonify({"status": "failure", "message": "User not found"}), 404
+    
+    result = interests.update_one(
+        {"_id":ObjectId(user_id)},
+        {"$set":{"interests":interests_list}},
+        upsert=True
+    ) 
+    
+    if result.upserted_id or result.modified_count >0:
+        updated_interests = interests.find_one({"_id": ObjectId(user_id)})
+        return jsonify({
+            "user_id": str(user_id),
+            "interests": updated_interests.get("interests", [])
+        }), 201
+    else:
+        return jsonify({"status": "failure", "message": "Failed to add interests"}), 500
+                   
 @app.route('/api/summary', methods=['GET'])
 def get_summary():
     summary_data = {
