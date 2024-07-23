@@ -5,6 +5,8 @@ from pymongo import MongoClient
 from flask import Flask, request, jsonify, redirect, url_for
 from bson.objectid import ObjectId
 from flask_cors import CORS
+from db_actions.functions import *
+from retrievers.functions import *
 
 
 load_dotenv()
@@ -73,8 +75,7 @@ def get_summary():
 def get_bot_response():
     question = request.json.get('question')
     recordId = request.json.get('record_id')
-    database = get_DBconnection()
-    article_url = get_article_url(database,recordId)
+    article_url = get_article_url(db,recordId)
     response = response_retriever(article_url, question)
 
 
