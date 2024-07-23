@@ -21,8 +21,8 @@ def set_bot_schema():
         (
             "system",
             "Answer the user's questions based on the below context" 
-            "and start the response as 'As per the article'." 
-            "If you do not know the answer, say 'Sorry, I do not see any reference for this in the article!':\n\n{context}",
+            "and start the response as 'As per the source'." 
+            "If you do not know the answer, say 'Sorry, I do not see any reference for this in the source!':\n\n{context}",
         ),
         MessagesPlaceholder(variable_name="messages"),
     ]
