@@ -10,7 +10,7 @@ export default class HomeScreen extends Component {
   };
 
   componentDidMount() {
-    fetch(`${API_URL}/api/summary`) 
+    fetch(`${API_URL}/api/summary`)  
       .then(response => response.json())
       .then(data => {
         this.setState({
@@ -30,7 +30,7 @@ export default class HomeScreen extends Component {
         <Text style={styles.description}>{this.state.description}</Text>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => this.props.navigation.navigate('Interest')}
+          onPress={() => this.props.navigation.navigate('Login')}
         >
           <Text style={styles.buttonText}>Try It Now</Text>
         </TouchableOpacity>

@@ -3,6 +3,10 @@
 # dependencies
 node_modules/
 
+#env path
+path/
+Frontend/flask-backend/path/
+
 # Expo
 .expo/
 dist/

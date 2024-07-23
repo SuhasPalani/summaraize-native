@@ -1,3 +1,5 @@
 .env
 summaraizeUI
 Frontend/flask-backend/venv
+Frontend/flask-backend/path/
+Backend/path/
