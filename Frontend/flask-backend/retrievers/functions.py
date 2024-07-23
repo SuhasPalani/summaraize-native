@@ -12,14 +12,33 @@ from langchain_core.runnables import RunnablePassthrough
 from dotenv import load_dotenv
 load_dotenv()
 
+def set_bot_schema():
+    chat = ChatOpenAI(model="gpt-3.5-turbo-1106")
+    
+        #prompt
+    question_answering_prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "Answer the user's questions based on the below context" 
+            "and start the response as 'As per the article'." 
+            "If you do not know the answer, say 'Sorry, I do not see any reference for this in the article!':\n\n{context}",
+        ),
+        MessagesPlaceholder(variable_name="messages"),
+    ]
+)
+    demo_ephemeral_chat_history = ChatMessageHistory()
 
-def response_retriever(url, question):
+    return chat, question_answering_prompt,demo_ephemeral_chat_history
+
+
+def response_retriever(url, question, chat, question_answering_prompt,demo_ephemeral_chat_history):
     if validate_url(url):
         data = load_data_from_web(url)
         vectorstore = doc_splitter(data)
         retriever = vectorstore.as_retriever(k=4)
         retreived_docs = doc_retriever(question,retriever)
-        retrieval_chain, demo_ephemeral_chat_history = get_retreiver_chain(retreived_docs,retriever,question)
+        retrieval_chain = get_retreiver_chain(retreived_docs,retriever,question, chat, question_answering_prompt,demo_ephemeral_chat_history)
         response = invoke_chain(retrieval_chain,demo_ephemeral_chat_history)
 
         return response
@@ -41,27 +60,13 @@ def doc_retriever(question,retriever):
     retreived_docs = retriever.invoke(question)
     return retreived_docs
 
-def get_retreiver_chain(docs,retriever,question):
+def get_retreiver_chain(docs,retriever,question, chat, question_answering_prompt,demo_ephemeral_chat_history):
     print('im here')
 
-    chat = ChatOpenAI(model="gpt-3.5-turbo-1106")
-    
-        #prompt
-    question_answering_prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            "Answer the user's questions based on the below context" 
-            "and start the response as 'As per the article'." 
-            "If you do not know the answer, say 'Sorry, I do not see any reference for this in the article!':\n\n{context}",
-        ),
-        MessagesPlaceholder(variable_name="messages"),
-    ]
-)
     document_chain = create_stuff_documents_chain(chat, question_answering_prompt)
 
         #invoke chain
-    demo_ephemeral_chat_history = ChatMessageHistory()
+    
 
     demo_ephemeral_chat_history.add_user_message(question)
 
@@ -77,7 +82,7 @@ def get_retreiver_chain(docs,retriever,question):
     answer=document_chain,
 )
     
-    return retrieval_chain, demo_ephemeral_chat_history
+    return retrieval_chain
 
 def invoke_chain(chain,chat_history):
      response = chain.invoke(

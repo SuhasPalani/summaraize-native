@@ -6,7 +6,6 @@ from bson import ObjectId
 from dotenv import load_dotenv
 load_dotenv()
 
-
 def get_article_url(database,recordId):
 
     record_details = database.videos.find({'_id' : ObjectId(str(recordId))},{'article_link':1})

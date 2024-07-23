@@ -21,6 +21,8 @@ user_auth = db['user_auth']
 app = Flask(__name__)
 CORS(app)
 
+chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
+
 def create_user(username, password):
     if user_auth.find_one({'username': username}):
         return None
@@ -74,9 +76,9 @@ def get_summary():
 @app.route('/api/chat', methods=['POST'])
 def get_bot_response():
     question = request.json.get('question')
-    recordId = request.json.get('record_id')
+    recordId = request.json.get('recordId')
     article_url = get_article_url(db,recordId)
-    response = response_retriever(article_url, question)
+    response = response_retriever(article_url, question, chat, question_answering_prompt,demo_ephemeral_chat_history)
 
 
     print(response["answer"])
