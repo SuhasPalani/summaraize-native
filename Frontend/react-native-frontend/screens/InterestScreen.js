@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // or use any other icon set
-import { API_URL } from '@env';
+import { API_URL } from '@env'; // Correct import for API_URL
 
 const topics = [
   { name: 'Artificial Intelligence', icon: 'cogs' },
@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#333',
-    
   },
   scrollContainer: {
     flexDirection: 'row',

@@ -58,16 +58,16 @@ export default function QuestionBotScreen() {
         const response = await fetch(`${API_URL}/api/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: input, record_id: '669db362ae5f97bb3f088f9d' }),
+          body: JSON.stringify({ question: input, recordid: '669db362ae5f97bb3f088f9d' }),
         }).then(response =>{
           console.log(response)
         }).catch(error => {
           console.log(error)
         });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // if (!response.ok) {
+        //   throw new Error(`HTTP error! status: ${response.status}`);
+        // }
 
         const data = await response.json();
         setMessages((prevMessages) => [...prevMessages, { text: data.response, type: "bot" }]);
@@ -79,7 +79,7 @@ export default function QuestionBotScreen() {
         // Ensure input area returns to original position after sending
         setTimeout(() => {
           setInputAreaHeight(60); // Adjust or remove this value to fine-tune the position
-        }, 100); // Small delay to ensure layout update
+        }, 500); // Small delay to ensure layout update
       }
     }
   }, [input]);

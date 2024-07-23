@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const { width, height } = Dimensions.get('window');
 
-export default function FeedScreen({ navigation }) {
+export default function FeedScreen({ route, navigation }) {
+  const { topic } = route.params;
   const [liked, setLiked] = useState({});
+
+  useEffect(() => {
+    navigation.setOptions({ title: topic.name });
+  }, [navigation, topic]);
 
   const handleLike = (index) => {
     setLiked(prevLiked => ({
