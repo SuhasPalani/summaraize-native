@@ -41,8 +41,12 @@ def get_user_interests(user_id):
 
 @app.route('/api/chat', methods=['POST'])
 def get_bot_response():
+    
     question = request.json.get('question')
-    recordId = request.json.get('record_id')
+    # print(request)
+    # print(question)
+    recordId = request.json.get('recordid')
+    # print(recordId)
     database = get_DBconnection()
     article_url = get_article_url(database,recordId)
     response = response_retriever(article_url, question)

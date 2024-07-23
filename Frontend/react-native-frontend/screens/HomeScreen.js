@@ -10,7 +10,7 @@ export default class HomeScreen extends Component {
   };
 
   componentDidMount() {
-    fetch(`${API_URL}/api/summary`)
+    fetch(`${API_URL}/api/summary`) 
       .then(response => response.json())
       .then(data => {
         this.setState({

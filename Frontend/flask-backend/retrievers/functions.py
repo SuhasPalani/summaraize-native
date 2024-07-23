@@ -42,8 +42,10 @@ def doc_retriever(question,retriever):
     return retreived_docs
 
 def get_retreiver_chain(docs,retriever,question):
-    chat = ChatOpenAI(model="gpt-3.5-turbo-1106")
+    print('im here')
 
+    chat = ChatOpenAI(model="gpt-3.5-turbo-1106")
+    
         #prompt
     question_answering_prompt = ChatPromptTemplate.from_messages(
     [
@@ -74,6 +76,7 @@ def get_retreiver_chain(docs,retriever,question):
 ).assign(
     answer=document_chain,
 )
+    
     return retrieval_chain, demo_ephemeral_chat_history
 
 def invoke_chain(chain,chat_history):
