@@ -5,7 +5,7 @@ import { CheckBox } from 'react-native-elements';
 
 
 const LoginPage = ({ navigation }) => {
-  const [email, setEmail] = useState('');
+  const [username, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
@@ -21,7 +21,7 @@ const LoginPage = ({ navigation }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
@@ -51,7 +51,7 @@ const LoginPage = ({ navigation }) => {
       <TextInput
         style={[styles.input, isDarkMode ? styles.darkInput : styles.lightInput]}
         placeholder="Email"
-        value={email}
+        value={username}
         onChangeText={setEmail}
         keyboardType="email-address"
         placeholderTextColor={isDarkMode ? '#888' : '#555'}
