@@ -59,8 +59,8 @@ def signup():
     else:
         return jsonify({"status": "failure", "message": "User already exists"}), 400
     
-@app.route('/api/add_interests',methods=['POST'])
-def add_interests():
+@app.route('/api/interest',methods=['POST'])
+def interest():
     data = request.json
     interests_list = data.get('interests',[])
     user_id = data.get('user_id')
@@ -73,7 +73,7 @@ def add_interests():
     
     result = interests.update_one(
         {"_id":ObjectId(user_id)},
-        {"$set":{"interests":interests_list}},
+        {"$addToSet":{"interests":{"$each":interests_list}}},
         upsert=True
     ) 
     
@@ -85,6 +85,8 @@ def add_interests():
         }), 201
     else:
         return jsonify({"status": "failure", "message": "Failed to add interests"}), 500
+
+
                    
 @app.route('/api/summary', methods=['GET'])
 def get_summary():
