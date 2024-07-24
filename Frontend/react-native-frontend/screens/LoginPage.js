@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, Switch} from 'react-native';
 
 import { CheckBox } from 'react-native-elements';
-
+import { API_URL} from '@env';
 
 const LoginPage = ({ navigation }) => {
   const [username, setEmail] = useState('');
@@ -14,7 +14,7 @@ const LoginPage = ({ navigation }) => {
 
 
   const handleSubmit = async () => {
-    const endpoint = isSignUp ? 'http://192.168.0.14:5000/api/signup' : 'http://192.168.0.14:5000/api/login';
+    const endpoint = isSignUp ? `${API_URL}/api/signup` : `${API_URL}/api/login`;
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
