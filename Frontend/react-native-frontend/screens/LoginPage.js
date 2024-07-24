@@ -13,7 +13,10 @@ const LoginPage = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async () => {
+
+
     const endpoint = isSignUp ? `${API_URL}/api/signup` : `${API_URL}/api/login`;
+
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
