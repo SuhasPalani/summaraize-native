@@ -5,6 +5,8 @@ from pymongo import MongoClient
 from flask import Flask, request, jsonify, redirect, url_for
 from bson.objectid import ObjectId
 from flask_cors import CORS
+from db_actions.functions import *
+from retrievers.functions import *
 
 
 load_dotenv()
@@ -18,6 +20,8 @@ user_auth = db['user_auth']
 
 app = Flask(__name__)
 CORS(app)
+
+chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
 
 def create_user(username, password):
     if user_auth.find_one({'username': username}):
@@ -72,10 +76,9 @@ def get_summary():
 @app.route('/api/chat', methods=['POST'])
 def get_bot_response():
     question = request.json.get('question')
-    recordId = request.json.get('record_id')
-    database = get_DBconnection()
-    article_url = get_article_url(database,recordId)
-    response = response_retriever(article_url, question)
+    recordId = request.json.get('recordId')
+    article_url = get_article_url(db,recordId)
+    response = response_retriever(article_url, question, chat, question_answering_prompt,demo_ephemeral_chat_history)
 
 
     print(response["answer"])
