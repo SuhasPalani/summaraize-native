@@ -14,7 +14,7 @@ const LoginPage = ({ navigation }) => {
 
 
   const handleSubmit = async () => {
-    const endpoint = isSignUp ? 'http://192.168.0.14:5000/api/signup' : 'http://192.168.0.14:5000/api/login';
+    const endpoint = isSignUp ? 'http://192.168.0.11:5000/api/signup' : 'http://192.168.0.11:5000/api/login';
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
