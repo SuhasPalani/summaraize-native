@@ -35,7 +35,7 @@ export default function InterestScreen({ navigation }) {
 
   const handleContinue = () => {
     setLoading(true);
-    fetch(`${API_URL}/api/interest`, {
+    fetch('http://192.168.0.200:5000/api/interest', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

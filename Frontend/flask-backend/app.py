@@ -84,28 +84,37 @@ def get_bot_response():
     print(response["answer"])
 
     return jsonify({"status": "success", "answer": response["answer"]})
+
+
+@app.route('/api/interest', methods=['POST'])
+def post_interest():
+    data = request.json
+    print("Received JSON data:", data)  # Debug statement
+    topics = data.get('topics', [])
+    print("Extracted topics:", topics)  # Debug statement
+    response = {
+        "status": "success",
+        "message": "Topics received!",
+        "received_data": topics
+    }
+    # Assuming topics is a list of topic names, you can directly return them
+    return jsonify(response)
+
+
+
+@app.route('/api/user_interests/<user_id>', methods=['GET'])
+def get_user_interests(user_id):
+    interests = user_interests_db.get(user_id, [])
+    return jsonify({"status": "success", "interests": interests})
+
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 
 
 
-# @app.route('/api/interest', methods=['POST'])
-# def post_interest():
-#     data = request.json
-#     print("Received JSON data:", data)  # Debug statement
-#     topics = data.get('topics', [])
-#     print("Extracted topics:", topics)  # Debug statement
-#     response = {
-#         "status": "success",
-#         "message": "Topics received!",
-#         "received_data": topics
-#     }
-#     return jsonify(response)
 
-# @app.route('/api/user_interests/<user_id>', methods=['GET'])
-# def get_user_interests(user_id):
-#     interests = user_interests_db.get(user_id, [])
-#     return jsonify({"status": "success", "interests": interests})
 
 
 
