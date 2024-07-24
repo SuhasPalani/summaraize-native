@@ -7,6 +7,8 @@ from pymongo import MongoClient
 from flask import Flask, request, jsonify, redirect, url_for, session
 from bson.objectid import ObjectId
 from flask_cors import CORS
+from db_actions.functions import *
+from retrievers.functions import *
 
 
 load_dotenv()
@@ -21,6 +23,8 @@ interests= db['interests']
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
+chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
 
 def create_user(username, password):
     if user_auth.find_one({'username': username}):
@@ -133,37 +137,45 @@ def get_summary():
 @app.route('/api/chat', methods=['POST'])
 def get_bot_response():
     question = request.json.get('question')
-    recordId = request.json.get('record_id')
-    database = get_DBconnection()
-    article_url = get_article_url(database,recordId)
-    response = response_retriever(article_url, question)
+    recordId = request.json.get('recordId')
+    article_url = get_article_url(db,recordId)
+    response = response_retriever(article_url, question, chat, question_answering_prompt,demo_ephemeral_chat_history)
 
 
     print(response["answer"])
 
     return jsonify({"status": "success", "answer": response["answer"]})
+
+
+@app.route('/api/interest', methods=['POST'])
+def post_interest():
+    data = request.json
+    print("Received JSON data:", data)  # Debug statement
+    topics = data.get('topics', [])
+    print("Extracted topics:", topics)  # Debug statement
+    response = {
+        "status": "success",
+        "message": "Topics received!",
+        "received_data": topics
+    }
+    # Assuming topics is a list of topic names, you can directly return them
+    return jsonify(response)
+
+
+
+@app.route('/api/user_interests/<user_id>', methods=['GET'])
+def get_user_interests(user_id):
+    interests = user_interests_db.get(user_id, [])
+    return jsonify({"status": "success", "interests": interests})
+
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',debug=True)
+    app.run(host='0.0.0.0', port=5000)
 
 
 
-# @app.route('/api/interest', methods=['POST'])
-# def post_interest():
-#     data = request.json
-#     print("Received JSON data:", data)  # Debug statement
-#     topics = data.get('topics', [])
-#     print("Extracted topics:", topics)  # Debug statement
-#     response = {
-#         "status": "success",
-#         "message": "Topics received!",
-#         "received_data": topics
-#     }
-#     return jsonify(response)
 
-# @app.route('/api/user_interests/<user_id>', methods=['GET'])
-# def get_user_interests(user_id):
-#     interests = user_interests_db.get(user_id, [])
-#     return jsonify({"status": "success", "interests": interests})
 
 
 

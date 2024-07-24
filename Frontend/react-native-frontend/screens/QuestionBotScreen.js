@@ -58,7 +58,7 @@ export default function QuestionBotScreen() {
         const response = await fetch(`${API_URL}/api/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: input, record_id: '669db362ae5f97bb3f088f9d' }),
+          body: JSON.stringify({ question: input, recordId: '669db362ae5f97bb3f088f9d' }),
         }).then(response =>response.json()).then(responseJSON => {
           console.log(responseJSON)
           setMessages((prevMessages) => [...prevMessages, { text: responseJSON["answer"], type: "bot" }]);
