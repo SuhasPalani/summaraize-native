@@ -1,74 +1,209 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Animated, Easing } from 'react-native';
-// import Icon from 'react-native-vector-icons/FontAwesome';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Dimensions,
+  Animated,
+  Easing,
+  ActivityIndicator,
+} from "react-native";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { Video } from "expo-av";
+import { useFocusEffect } from "@react-navigation/native";
+import Slider from "@react-native-community/slider";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
+
+const videos = [
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+];
 
 export default function FeedScreen({ route, navigation }) {
   const { topic } = route.params;
   const [liked, setLiked] = useState({});
+  const [isReady, setIsReady] = useState(Array(videos.length).fill(false));
+  const [currentPlayingIndex, setCurrentPlayingIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [duration, setDuration] = useState(0);
+  const [position, setPosition] = useState(0);
+  const buttonScale = useRef(new Animated.Value(1)).current;
+  const videoRefs = useRef([]);
+  const flatListRef = useRef(null);
 
   useEffect(() => {
     navigation.setOptions({ title: topic.name });
   }, [navigation, topic]);
 
+  const animateButton = () => {
+    Animated.sequence([
+      Animated.timing(buttonScale, {
+        toValue: 1.2,
+        duration: 150,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(buttonScale, {
+        toValue: 1,
+        duration: 150,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   const handleLike = (index) => {
-    setLiked(prevLiked => ({
+    setLiked((prevLiked) => ({
       ...prevLiked,
-      [index]: !prevLiked[index]
+      [index]: !prevLiked[index],
     }));
   };
 
   const handleQuestionBot = () => {
-    navigation.navigate('QuestionBot');
+    navigation.navigate("QuestionBot");
   };
 
-  const handleLink = () => {
-    // Implement link opening here
+  const handleLink = (url) => {
+    navigation.navigate("Article", { url: url });
   };
 
-  // Animation for button scaling
-  const scaleAnim = new Animated.Value(1);
-
-  const animateButton = () => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 1.2,
-        duration: 200,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 200,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      })
-    ]).start();
+  const onPlaybackStatusUpdate = (index, status) => {
+    if (status.isLoaded) {
+      setIsReady((prevState) => {
+        const newState = [...prevState];
+        newState[index] = true;
+        return newState;
+      });
+      if (index === currentPlayingIndex) {
+        setDuration(status.durationMillis);
+        setPosition(status.positionMillis);
+        setIsPlaying(status.isPlaying);
+      }
+    }
   };
 
-  const renderFeedItem = (index) => (
-    <View key={index} style={styles.feedItem}>
-      <Text style={styles.content}>Your video content goes here.</Text>
+  const togglePlayPause = (index) => {
+    const video = videoRefs.current[index];
+    if (video) {
+      if (isPlaying) {
+        video.pauseAsync();
+      } else {
+        video.playAsync();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const onSliderValueChange = (value) => {
+    const video = videoRefs.current[currentPlayingIndex];
+    if (video) {
+      video.setPositionAsync(value);
+    }
+  };
+
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems.length > 0) {
+      const newIndex = viewableItems[0].index;
+      if (currentPlayingIndex !== newIndex) {
+        const prevVideo = videoRefs.current[currentPlayingIndex];
+        if (prevVideo) prevVideo.pauseAsync();
+        setCurrentPlayingIndex(newIndex);
+        const newVideo = videoRefs.current[newIndex];
+        if (newVideo) newVideo.playAsync();
+      }
+    }
+  }).current;
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 50,
+  }).current;
+
+  useFocusEffect(
+    useCallback(() => {
+      const video = videoRefs.current[currentPlayingIndex];
+      if (video) {
+        video.playAsync();
+        setIsPlaying(true);
+      }
+      return () => {
+        if (video) {
+          video.pauseAsync();
+        }
+      };
+    }, [currentPlayingIndex])
+  );
+
+  const renderFeedItem = ({ item: videoUri, index }) => (
+    <View style={styles.feedItem}>
+      <TouchableOpacity
+        style={styles.videoContainer}
+        onPress={() => togglePlayPause(index)}
+      >
+        <Video
+          ref={(ref) => {
+            videoRefs.current[index] = ref;
+          }}
+          source={{ uri: videoUri }}
+          rate={1.0}
+          volume={1.0}
+          isMuted={false}
+          resizeMode="contain"
+          shouldPlay={index === currentPlayingIndex}
+          onPlaybackStatusUpdate={(status) =>
+            onPlaybackStatusUpdate(index, status)
+          }
+          style={styles.video}
+        />
+        {!isReady[index] && (
+          <ActivityIndicator style={styles.loader} size="large" color="#ffffff" />
+        )}
+        {index === currentPlayingIndex && (
+          <View style={styles.sliderContainer}>
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={duration}
+              value={position}
+              onValueChange={onSliderValueChange}
+              minimumTrackTintColor="#FFFFFF"
+              maximumTrackTintColor="#000000"
+              thumbTintColor="#FFFFFF"
+            />
+          </View>
+        )}
+      </TouchableOpacity>
       <View style={styles.buttons}>
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
-            handleLink();
+            handleLink(
+              "https://www.gov.ca.gov/2024/07/25/governor-newsom-orders-state-agencies-to-address-encampments-in-their-communities-with-urgency-and-dignity/"
+            );
             animateButton();
           }}
         >
-          <Icon name="link" size={30} color="white" />
+          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+            <Icon name="link" size={30} color="white" />
+          </Animated.View>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, { color: liked[index] ? 'red' : 'white' }]}
+          style={styles.button}
           onPress={() => {
             handleLike(index);
             animateButton();
           }}
         >
-          <Icon name="thumb-up" size={30} color={liked[index] ? 'red' : 'white'} />
+          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+            <Icon
+              name="thumb-up"
+              size={30}
+              color={liked[index] ? "red" : "white"}
+            />
+          </Animated.View>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
@@ -77,7 +212,9 @@ export default function FeedScreen({ route, navigation }) {
             animateButton();
           }}
         >
-          <Icon name="robot" size={30} color="white" />
+          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+            <Icon name="robot" size={30} color="white" />
+          </Animated.View>
         </TouchableOpacity>
       </View>
     </View>
@@ -85,9 +222,18 @@ export default function FeedScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      <ScrollView pagingEnabled showsVerticalScrollIndicator={false}>
-        {[1, 2, 3].map(renderFeedItem)}
-      </ScrollView>
+      <FlatList
+        ref={flatListRef}
+        data={videos}
+        renderItem={renderFeedItem}
+        keyExtractor={(item, index) => index.toString()}
+        pagingEnabled
+        showsVerticalScrollIndicator={false}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig}
+        snapToAlignment="start"
+        decelerationRate="fast"
+      />
     </View>
   );
 }
@@ -95,41 +241,57 @@ export default function FeedScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
   },
   feedItem: {
     width: width,
     height: height,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  content: {
-    fontSize: 24,
-    color: 'white',
-    marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
-    padding: 20,
-    borderRadius: 10,
+  videoContainer: {
+    width: "100%",
+    height: "100%",
+  },
+  video: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "black",
+  },
+  loader: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    marginTop: -15,
+    marginLeft: -15,
+  },
+  sliderContainer: {
+    position: "absolute",
+    bottom: 50,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 20,
+  },
+  slider: {
+    width: "100%",
+    height: 40,
   },
   buttons: {
-    position: 'absolute',
+    position: "absolute",
+    bottom: 100,
     right: 20,
-    top: height / 2 - 30, // Center vertically
-    flexDirection: 'column',
-    alignItems: 'center',
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "center",
+    height: 200,
   },
   button: {
-    marginVertical: 10,
     padding: 10,
     borderRadius: 50,
-    backgroundColor: '#333',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#333",
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 5,
-    transform: [{ scale: 1 }],
-    transition: 'transform 0.2s ease-in-out',
+    marginVertical: 5,
   },
 });
