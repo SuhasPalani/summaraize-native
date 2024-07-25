@@ -8,8 +8,15 @@ from flask import Flask, request, jsonify, redirect, url_for, session
 from bson.objectid import ObjectId
 from flask_cors import CORS
 
+from db_actions.functions import *
+from retrievers.functions import *
+
 load_dotenv()
 mongo_uri = os.getenv('MONGO_URI')
+
+if os.getenv("OPENAI_API_KEY") is not None: 
+    chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
+
 
 client = MongoClient(mongo_uri)
 db = client['Summaraize']
@@ -60,11 +67,8 @@ def login():
     user = user_auth.find_one({'username': username})
     
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
-        token = generate_token(user['_id'])
-        
-        #session['token'] = token
-        
-        return jsonify({'status': 'success', 'token': token, 'user_id': str(user['_id'])}), 200
+        session['user_id'] = str(user['_id'])
+        return jsonify({'status': 'success', 'user_id': str(user['_id'])}), 200
     else:
         return jsonify({'status': 'failure', 'message': 'Invalid credentials'}), 401
 
@@ -77,29 +81,20 @@ def signup():
     user_id = create_user(username, password)
     
     if user_id:
-        token = generate_token(user_id)
-        
-        #session['token'] = token
-        
-        return jsonify({"status": "success", "token": token, "message": "User created successfully", 'user_id': str(user_id)}), 201
+        session['user_id'] = str(user_id)
+        return jsonify({"status": "success", "message": "User created successfully", 'user_id': str(user_id)}), 201
     else:
         return jsonify({"status": "failure", "message": "User already exists"}), 400
     
 
 @app.route('/api/interest', methods=['POST'])
 def interest():
-    data = request.json
-    token = data.get('token')
+    user_id = session.get('user_id')
     
-    if not token:
-        return jsonify({"status": "failure", "message": "Missing or invalid token"}), 401
-    
-    user_id = decode_token(token)
     if not user_id:
-        return jsonify({"status": "failure", "message": "Invalid or expired token"}), 401
-
+        return jsonify({"status": "failure", "message": "User not logged in"}), 401
     
-    interests_list = data.get('interests', [])
+    interests_list = request.json.get('interests', [])
 
     if not user_auth.find_one({'_id': ObjectId(user_id)}):
         return jsonify({"status": "failure", "message": "User not found"}), 404
@@ -132,10 +127,9 @@ def get_summary():
 @app.route('/api/chat', methods=['POST'])
 def get_bot_response():
     question = request.json.get('question')
-    recordId = request.json.get('record_id')
-    database = get_DBconnection()
-    article_url = get_article_url(database, recordId)
-    response = response_retriever(article_url, question)
+    recordId = request.json.get('recordId')
+    article_url = get_article_url(db,recordId)
+    response = response_retriever(article_url, question, chat, question_answering_prompt,demo_ephemeral_chat_history)
 
     print(response["answer"])
 
