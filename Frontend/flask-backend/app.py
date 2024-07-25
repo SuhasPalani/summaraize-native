@@ -24,7 +24,7 @@ app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-# chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
+chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
 
 def create_user(username, password):
     if user_auth.find_one({'username': username}):
