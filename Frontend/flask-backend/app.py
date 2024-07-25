@@ -104,7 +104,7 @@ def interest():
         return jsonify({"status": "failure", "message": "Invalid or expired token"}), 401
 
     data = request.json
-    interests_list = data.get('interests', [])
+    interests_list = data.get('topics', [])
 
     if not user_auth.find_one({'_id': ObjectId(user_id)}):
         return jsonify({"status": "failure", "message": "User not found"}), 404
