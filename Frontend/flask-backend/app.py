@@ -24,7 +24,7 @@ app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
+# chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
 
 def create_user(username, password):
     if user_auth.find_one({'username': username}):
@@ -104,7 +104,7 @@ def interest():
         return jsonify({"status": "failure", "message": "Invalid or expired token"}), 401
 
     data = request.json
-    interests_list = data.get('interests', [])
+    interests_list = data.get('topics', [])
 
     if not user_auth.find_one({'_id': ObjectId(user_id)}):
         return jsonify({"status": "failure", "message": "User not found"}), 404
