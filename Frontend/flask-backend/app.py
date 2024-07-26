@@ -62,14 +62,8 @@ def signup():
 @app.route('/api/interest', methods=['POST'])
 def interest():
     headers = request.headers
-    bearer_token = headers.get('Authorization')
     
-    if bearer_token.startswith('Bearer '):
-        clean_token = bearer_token[7:]
-    else:
-        clean_token = bearer_token
-
-    isValid, response_message = verify_user(clean_token,app)
+    isValid, response_message = verify_user(headers,app)
 
     if(not isValid):
         return response_message
@@ -104,14 +98,8 @@ def get_bot_response():
 @app.route('/api/get_user_interests', methods=['GET'])
 def get_user_interests():
     headers = request.headers
-    bearer_token = headers.get('Authorization')
-    
-    if bearer_token.startswith('Bearer '):
-        clean_token = bearer_token[7:]
-    else:
-        clean_token = bearer_token
 
-    isValid, response_message = verify_user(clean_token,app)
+    isValid, response_message = verify_user(headers,app)
 
     if(isValid):
         user_id = response_message
