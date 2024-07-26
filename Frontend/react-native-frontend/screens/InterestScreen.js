@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; // or use any other icon set
 import { API_URL } from '@env'; // Correct import for API_URL
+import { SessionContext } from '../Context/SessionContext';
+import LoadingScreen from '../loading/LoadingScreen';
 
 const topics = [
   { name: 'Artificial Intelligence', icon: 'cogs' },
@@ -24,6 +26,35 @@ const topics = [
 export default function InterestScreen({ navigation }) {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { sessionID } = useContext(SessionContext);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (sessionID) {
+        
+        try {
+          const response = await fetch(`${API_URL}/api/get_user_interests`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${sessionID}`,
+            },
+          });
+
+          const data = await response.json();
+          console.log(data["interests"][0])
+          uniqueInterests = Array.from(new Set(data["interests"]))
+          setSelectedTopics([...selectedTopics,...uniqueInterests])
+          
+        } catch (error) {
+         
+          console.error('Failed to fetch data', error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [sessionID]);
+
 
   const toggleTopic = (topic) => {
     setSelectedTopics(prev =>
@@ -35,10 +66,11 @@ export default function InterestScreen({ navigation }) {
 
   const handleContinue = () => {
     setLoading(true);
-    fetch('http://192.168.0.200:5000/api/interest', {
+    fetch(`${API_URL}/api/interest`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionID}`,
       },
       body: JSON.stringify({ topics: selectedTopics }),
     })
@@ -55,6 +87,10 @@ export default function InterestScreen({ navigation }) {
       });
   };
 
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Select Your Interests</Text>
@@ -70,7 +106,7 @@ export default function InterestScreen({ navigation }) {
           >
             <View style={styles.iconContainer}>
               <Icon name={topic.icon} size={40} color="#fff" />
-              <Text style={styles.topicText}>{topic.name}</Text>
+              <Text style={!selectedTopics.includes(topic.name)&&styles.topicText || selectedTopics.includes(topic.name)&&styles.topicText_selected}>{topic.name}</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -128,6 +164,13 @@ const styles = StyleSheet.create({
   },
   topicText: {
     color: 'black',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 5,
+  },
+  topicText_selected: {
+    color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',

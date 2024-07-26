@@ -7,56 +7,25 @@ from pymongo import MongoClient
 from flask import Flask, request, jsonify, redirect, url_for, session
 from bson.objectid import ObjectId
 from flask_cors import CORS
-
 from db_actions.functions import *
 from retrievers.functions import *
+from user_auth_actions.functions import *
 
 load_dotenv()
 mongo_uri = os.getenv('MONGO_URI')
-
 if os.getenv("OPENAI_API_KEY") is not None: 
     chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
-
 
 client = MongoClient(mongo_uri)
 db = client['Summaraize']
 user_auth = db['user_auth']
-interests = db['interests']
+interests= db['interests']
 
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-def create_user(username, password):
-    if user_auth.find_one({'username': username}):
-        return None
-    
-    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    user_id = user_auth.insert_one({
-        #'_id': ObjectId(),
-        'username': username,
-        'password': hashed_pw   
-    }).inserted_id
-    
-    return user_id 
-
-def generate_token(user_id):
-    payload = {
-        'user_id': str(user_id),
-        'exp': datetime.utcnow() + timedelta(hours=2)
-    }
-    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-    
-    return token
-    
-def decode_token(token):
-    try:
-        payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-        return payload['user_id']
-    except jwt.ExpiredSignatureError:
-        return None
-    except jwt.InvalidTokenError:
-        return None
+chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -67,8 +36,11 @@ def login():
     user = user_auth.find_one({'username': username})
     
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
-        session['user_id'] = str(user['_id'])
-        return jsonify({'status': 'success', 'user_id': str(user['_id'])}), 200
+        token = generate_token(user['_id'])
+        
+        session['token'] = token
+        
+        return jsonify({'status': 'success', 'token': token, 'user_id': str(user['_id'])}), 200
     else:
         return jsonify({'status': 'failure', 'message': 'Invalid credentials'}), 401
 
@@ -78,39 +50,48 @@ def signup():
     username = data.get('username')
     password = data.get('password')
     
-    user_id = create_user(username, password)
+    user_id = create_user(db,username, password)
     
     if user_id:
-        session['user_id'] = str(user_id)
-        return jsonify({"status": "success", "message": "User created successfully", 'user_id': str(user_id)}), 201
+        token = generate_token(user_id)
+        
+        session['token'] = token
+        
+        return jsonify({"status": "success", "token": token, "message": "User created successfully", 'user_id': str(user_id)}), 201
     else:
         return jsonify({"status": "failure", "message": "User already exists"}), 400
     
 
 @app.route('/api/interest', methods=['POST'])
 def interest():
-    user_id = session.get('user_id')
+    headers = request.headers
+    bearer_token = headers.get('Authorization')
     
-    if not user_id:
-        return jsonify({"status": "failure", "message": "User not logged in"}), 401
-    
-    interests_list = request.json.get('interests', [])
+    if bearer_token.startswith('Bearer '):
+        clean_token = bearer_token[7:]
+    else:
+        clean_token = bearer_token
 
-    if not user_auth.find_one({'_id': ObjectId(user_id)}):
-        return jsonify({"status": "failure", "message": "User not found"}), 404
+    isValid, response_message = verify_user(clean_token,app)
+
+    if(not isValid):
+        return response_message
+    
+    user_id = response_message
+    data = request.json
+    interests_list = data.get('topics', [])
 
     result = interests.update_one(
-        {'user_id': ObjectId(user_id)},
-        {"$addToSet": {"interests": {"$each": interests_list}}},
+        {"user_id": ObjectId(user_id)},
+        {"$set": {"interests": interests_list}},
         upsert=True
     )
-    
+    print(result)
     if result.upserted_id or result.modified_count > 0:
-        updated_interests = interests.find_one({'user_id': ObjectId(user_id)})
+        updated_interests = interests.find_one({"user_id": ObjectId(user_id)})
         return jsonify({
-            "interests_id": str(updated_interests['_id']),
-            "user_id": str(updated_interests['user_id']),
-            "interests": updated_interests["interests"]
+            "user_id": str(user_id),
+            "interests": updated_interests.get("interests", [])
         }), 201
     else:
         return jsonify({"status": "failure", "message": "Failed to add interests"}), 500
@@ -124,6 +105,7 @@ def get_summary():
     }
     return jsonify(summary_data)
 
+
 @app.route('/api/chat', methods=['POST'])
 def get_bot_response():
     question = request.json.get('question')
@@ -135,5 +117,30 @@ def get_bot_response():
 
     return jsonify({"status": "success", "answer": response["answer"]})
 
+@app.route('/api/get_user_interests', methods=['GET'])
+def get_user_interests():
+    headers = request.headers
+    bearer_token = headers.get('Authorization')
+    
+    if bearer_token.startswith('Bearer '):
+        clean_token = bearer_token[7:]
+    else:
+        clean_token = bearer_token
+
+    isValid, response_message = verify_user(clean_token)
+
+    if(isValid):
+        records = []
+        user_id = response_message
+        print("user_id>>> ",user_id)
+
+        for doc in db.interests.find({'user_id' : ObjectId(user_id)},{'interests':1}):
+            records = doc["interests"]
+        return jsonify({"status": "success", "interests": records})
+    else:
+        return response_message
+
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=5000)
