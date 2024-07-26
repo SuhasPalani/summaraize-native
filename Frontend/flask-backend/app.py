@@ -117,12 +117,9 @@ def get_user_interests():
     isValid, response_message = verify_user(clean_token,app)
 
     if(isValid):
-        records = []
         user_id = response_message
-
-        for doc in db.interests.find({'user_id' : ObjectId(user_id)},{'interests':1}):
-            records = doc["interests"]
-        return jsonify({"status": "success", "interests": records})
+        return find_user_interests(db,user_id)
+        
     else:
         return response_message
 

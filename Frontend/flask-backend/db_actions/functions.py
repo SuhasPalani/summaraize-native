@@ -45,3 +45,10 @@ def update_interest(interests,user_id,interests_list):
         }), 201
     else:
         return jsonify({"status": "failure", "message": "Failed to add interests"}), 500
+    
+
+def find_user_interests(db,user_id):
+    records = []
+    for doc in db.interests.find({'user_id' : ObjectId(user_id)},{'interests':1}):
+        records = doc["interests"]
+    return jsonify({"status": "success", "interests": records})
