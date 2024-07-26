@@ -36,7 +36,7 @@ def login():
     user = user_auth.find_one({'username': username})
     
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
-        token = generate_token(user['_id'])
+        token = generate_token(user['_id'],app)
         
         session['token'] = token
         
@@ -127,7 +127,7 @@ def get_user_interests():
     else:
         clean_token = bearer_token
 
-    isValid, response_message = verify_user(clean_token)
+    isValid, response_message = verify_user(clean_token,app)
 
     if(isValid):
         records = []
