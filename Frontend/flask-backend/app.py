@@ -50,16 +50,15 @@ def signup():
     username = data.get('username')
     password = data.get('password')
     
-    user_id = create_user(db,username, password)
+    user_id = create_user(db, username, password)
     
     if user_id:
-        token = generate_token(user_id)
-        
-        session['token'] = token
+        token = generate_token(user_id, app)
         
         return jsonify({"status": "success", "token": token, "message": "User created successfully", 'user_id': str(user_id)}), 201
     else:
         return jsonify({"status": "failure", "message": "User already exists"}), 400
+
     
 
 @app.route('/api/interest', methods=['POST'])
