@@ -8,11 +8,13 @@ import {
   Animated,
   Easing,
   ActivityIndicator,
+  TouchableWithoutFeedback,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { Video } from "expo-av";
 import { useFocusEffect } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
+import YoutubePlayer from "react-native-youtube-iframe";
 
 const { width, height } = Dimensions.get("window");
 
@@ -137,31 +139,51 @@ export default function FeedScreen({ route, navigation }) {
     }, [currentPlayingIndex])
   );
 
-  const renderFeedItem = ({ item: videoUri, index }) => (
-    <View style={styles.feedItem}>
-      <TouchableOpacity
-        style={styles.videoContainer}
-        onPress={() => togglePlayPause(index)}
-      >
-        <Video
-          ref={(ref) => {
-            videoRefs.current[index] = ref;
-          }}
-          source={{ uri: videoUri }}
-          rate={1.0}
-          volume={1.0}
-          isMuted={false}
-          resizeMode="contain"
-          shouldPlay={index === currentPlayingIndex}
-          onPlaybackStatusUpdate={(status) =>
-            onPlaybackStatusUpdate(index, status)
-          }
-          style={styles.video}
-        />
-        {!isReady[index] && (
-          <ActivityIndicator style={styles.loader} size="large" color="#ffffff" />
+  const renderFeedItem = ({ item: videoUri, index }) => {
+    const isYouTube = videoUri.includes("youtube.com");
+    const videoId = isYouTube ? videoUri.split("v=")[1] : null;
+
+    return (
+      <View style={styles.feedItem}>
+        {isYouTube ? (
+          <YoutubePlayer
+            height={height}
+            width={width}
+            videoId={videoId}
+            play={index === currentPlayingIndex && isPlaying}
+            onChangeState={(state) => {
+              if (state === "ended") {
+                setIsPlaying(false);
+              } else if (state === "playing") {
+                setIsPlaying(true);
+              }
+            }}
+          />
+        ) : (
+          <TouchableWithoutFeedback onPress={() => togglePlayPause(index)}>
+  <View style={styles.videoContainer}>
+    <Video
+      ref={(ref) => {
+        videoRefs.current[index] = ref;
+      }}
+      source={{ uri: videoUri }}
+      rate={1.0}
+      volume={1.0}
+      isMuted={false}
+      resizeMode="contain"
+      shouldPlay={index === currentPlayingIndex}
+      onPlaybackStatusUpdate={(status) =>
+        onPlaybackStatusUpdate(index, status)
+      }
+      style={styles.video}
+    />
+  </View>
+</TouchableWithoutFeedback>
         )}
-        {index === currentPlayingIndex && (
+        {!isReady[index] && !isYouTube && (
+          <ActivityIndicator size="large" color="#fff" style={styles.loader} />
+        )}
+        {index === currentPlayingIndex && !isYouTube && (
           <View style={styles.sliderContainer}>
             <Slider
               style={styles.slider}
@@ -171,70 +193,62 @@ export default function FeedScreen({ route, navigation }) {
               onValueChange={onSliderValueChange}
               minimumTrackTintColor="#FFFFFF"
               maximumTrackTintColor="#000000"
-              thumbTintColor="#FFFFFF"
             />
           </View>
         )}
-      </TouchableOpacity>
-      <View style={styles.buttons}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            handleLink(
-              "https://www.gov.ca.gov/2024/07/25/governor-newsom-orders-state-agencies-to-address-encampments-in-their-communities-with-urgency-and-dignity/"
-            );
-            animateButton();
-          }}
-        >
-          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-            <Icon name="link" size={30} color="white" />
-          </Animated.View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            handleLike(index);
-            animateButton();
-          }}
-        >
-          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-            <Icon
-              name="thumb-up"
-              size={30}
-              color={liked[index] ? "red" : "white"}
-            />
-          </Animated.View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            handleQuestionBot();
-            animateButton();
-          }}
-        >
-          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-            <Icon name="robot" size={30} color="white" />
-          </Animated.View>
-        </TouchableOpacity>
+        <View style={styles.buttons}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              handleLike(index);
+              animateButton();
+            }}
+          >
+            <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+              <Icon
+                name={liked[index] ? "heart" : "heart-outline"}
+                size={30}
+                color="#fff"
+              />
+            </Animated.View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              handleQuestionBot();
+              animateButton();
+            }}
+          >
+            <Icon name="robot" size={30} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              handleLink(
+                "https://www.gov.ca.gov/2024/07/25/governor-newsom-orders-state-agencies-to-address-encampments-in-their-communities-with-urgency-and-dignity/"
+              );
+              animateButton();
+            }}
+          >
+            <Icon name="link" size={30} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        ref={flatListRef}
-        data={videos}
-        renderItem={renderFeedItem}
-        keyExtractor={(item, index) => index.toString()}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        snapToAlignment="start"
-        decelerationRate="fast"
-      />
-    </View>
+    <FlatList
+      data={videos}
+      renderItem={renderFeedItem}
+      keyExtractor={(item, index) => index.toString()}
+      pagingEnabled
+      showsVerticalScrollIndicator={false}
+      onViewableItemsChanged={onViewableItemsChanged}
+      viewabilityConfig={viewabilityConfig}
+      snapToAlignment="start"
+      decelerationRate="fast"
+    />
   );
 }
 
