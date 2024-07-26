@@ -10,6 +10,7 @@ from user_auth_actions.functions import *
 
 load_dotenv()
 mongo_uri = os.getenv('MONGO_URI')
+
 if os.getenv("OPENAI_API_KEY") is not None: 
     chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
 
@@ -21,8 +22,6 @@ interests= db['interests']
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-
-chat, question_answering_prompt,demo_ephemeral_chat_history = set_bot_schema()
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -62,7 +61,7 @@ def signup():
 @app.route('/api/interest', methods=['POST'])
 def interest():
     headers = request.headers
-    
+
     isValid, response_message = verify_user(headers,app)
 
     if(not isValid):
