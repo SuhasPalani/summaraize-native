@@ -81,20 +81,7 @@ def interest():
     data = request.json
     interests_list = data.get('topics', [])
 
-    result = interests.update_one(
-        {"user_id": ObjectId(user_id)},
-        {"$set": {"interests": interests_list}},
-        upsert=True
-    )
-    print(result)
-    if result.upserted_id or result.modified_count > 0:
-        updated_interests = interests.find_one({"user_id": ObjectId(user_id)})
-        return jsonify({
-            "user_id": str(user_id),
-            "interests": updated_interests.get("interests", [])
-        }), 201
-    else:
-        return jsonify({"status": "failure", "message": "Failed to add interests"}), 500
+    return update_interest(interests,user_id,interests_list)
                   
 @app.route('/api/summary', methods=['GET'])
 def get_summary():
@@ -132,7 +119,6 @@ def get_user_interests():
     if(isValid):
         records = []
         user_id = response_message
-        print("user_id>>> ",user_id)
 
         for doc in db.interests.find({'user_id' : ObjectId(user_id)},{'interests':1}):
             records = doc["interests"]
