@@ -1,11 +1,8 @@
 import os
 import bcrypt
-import jwt
-from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from pymongo import MongoClient
-from flask import Flask, request, jsonify, redirect, url_for, session
-from bson.objectid import ObjectId
+from flask import Flask, request, jsonify,session
 from flask_cors import CORS
 from db_actions.functions import *
 from retrievers.functions import *
