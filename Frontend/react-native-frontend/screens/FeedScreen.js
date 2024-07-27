@@ -15,20 +15,15 @@ import { Video } from "expo-av";
 import { useFocusEffect } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
 import YoutubePlayer from "react-native-youtube-iframe";
+import { API_URL } from '@env';
 
 const { width, height } = Dimensions.get("window");
 
-const videos = [
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-];
-
 export default function FeedScreen({ route, navigation }) {
   const { topic } = route.params;
+  const [videos, setVideos] = useState([]);
   const [liked, setLiked] = useState({});
-  const [isReady, setIsReady] = useState(Array(videos.length).fill(false));
+  const [isReady, setIsReady] = useState([]);
   const [currentPlayingIndex, setCurrentPlayingIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [duration, setDuration] = useState(0);
@@ -39,7 +34,23 @@ export default function FeedScreen({ route, navigation }) {
 
   useEffect(() => {
     navigation.setOptions({ title: topic.name });
-  }, [navigation, topic]);
+
+    // Fetch videos for the selected topic
+    const fetchVideos = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/videos/${topic.name.toLowerCase().replace(/\s+/g, '_')}`);
+        const data = await response.json();
+        if (data.videos) {
+          setVideos(data.videos.map(video => `${API_URL}/api/video/${topic.name.toLowerCase().replace(/\s+/g, '_')}/${video}`));
+          setIsReady(new Array(data.videos.length).fill(false));
+        }
+      } catch (error) {
+        console.error('Failed to fetch videos', error);
+      }
+    };
+
+    fetchVideos();
+  }, [topic, navigation]);
 
   const animateButton = () => {
     Animated.sequence([
@@ -161,24 +172,24 @@ export default function FeedScreen({ route, navigation }) {
           />
         ) : (
           <TouchableWithoutFeedback onPress={() => togglePlayPause(index)}>
-  <View style={styles.videoContainer}>
-    <Video
-      ref={(ref) => {
-        videoRefs.current[index] = ref;
-      }}
-      source={{ uri: videoUri }}
-      rate={1.0}
-      volume={1.0}
-      isMuted={false}
-      resizeMode="contain"
-      shouldPlay={index === currentPlayingIndex}
-      onPlaybackStatusUpdate={(status) =>
-        onPlaybackStatusUpdate(index, status)
-      }
-      style={styles.video}
-    />
-  </View>
-</TouchableWithoutFeedback>
+            <View style={styles.videoContainer}>
+              <Video
+                ref={(ref) => {
+                  videoRefs.current[index] = ref;
+                }}
+                source={{ uri: videoUri }}
+                rate={1.0}
+                volume={1.0}
+                isMuted={false}
+                resizeMode="contain"
+                shouldPlay={index === currentPlayingIndex}
+                onPlaybackStatusUpdate={(status) =>
+                  onPlaybackStatusUpdate(index, status)
+                }
+                style={styles.video}
+              />
+            </View>
+          </TouchableWithoutFeedback>
         )}
         {!isReady[index] && !isYouTube && (
           <ActivityIndicator size="large" color="#fff" style={styles.loader} />
