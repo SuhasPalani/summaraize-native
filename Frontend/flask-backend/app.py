@@ -63,44 +63,17 @@ def signup():
 @app.route('/api/interest', methods=['POST'])
 def interest():
     headers = request.headers
-
-    bearer_token = headers.get('Authorization')
     
-    if not bearer_token:
-        return jsonify({"status": "failure", "message": "Authorization token not provided"}), 400
-    
-    if bearer_token.startswith('Bearer '):
-        clean_token = bearer_token[7:]
-    else:
-        clean_token = bearer_token
+    isValid, response_message = verify_user(headers,app)
 
-    isValid, response_message = verify_user(clean_token, app)
-
-
-    if not isValid:
+    if(not isValid):
         return response_message
     
     user_id = response_message
     data = request.json
     interests_list = data.get('topics', [])
 
-
-    result = interests.update_one(
-        {"user_id": ObjectId(user_id)},
-        {"$set": {"interests": interests_list}},
-        upsert=True
-    )
-
-    if result.upserted_id or result.modified_count > 0:
-        updated_interests = interests.find_one({"user_id": ObjectId(user_id)})
-        print(f"Updated interests: {interests_list}")
-
-        return jsonify({
-            "user_id": str(user_id),
-            "interests": updated_interests.get("interests", [])
-        }), 201
-    else:
-        return jsonify({"status": "failure", "message": "Failed to add interests"}), 500
+    return update_interest(interests,user_id,interests_list)
 
 
 @app.route('/api/summary', methods=['GET'])
@@ -126,24 +99,15 @@ def get_bot_response():
 @app.route('/api/get_user_interests', methods=['GET'])
 def get_user_interests():
     headers = request.headers
-    bearer_token = headers.get('Authorization')
-
-    if not bearer_token:
-        return jsonify({"status": "failure", "message": "Authorization token not provided"}), 400
     
-    # Pass the token directly to verify_user
-    isValid, response_message = verify_user(bearer_token, app)
+    isValid, response_message = verify_user(headers,app)
 
-    if isValid:
-        records = []
+    if(isValid):
         user_id = response_message
-        print("user_id>>> ", user_id)
+        return find_user_interests(db,user_id)
 
-        for doc in db.interests.find({'user_id': ObjectId(user_id)}, {'interests': 1}):
-            records = doc["interests"]
-        return jsonify({"status": "success", "interests": records})
-
-    return response_message
+    else:
+        return response_message
 
 
 @app.route('/api/videos/<topic>', methods=['GET'])
