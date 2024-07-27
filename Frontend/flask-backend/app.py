@@ -17,18 +17,6 @@ from db_actions.functions import *
 from retrievers.functions import *
 from user_auth_actions.functions import *
 
-load_dotenv()
-mongo_uri = os.getenv('MONGO_URI')
-
-if os.getenv("OPENAI_API_KEY") is not None: 
-    chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
-
-client = MongoClient(mongo_uri)
-db = client['Summaraize']
-user_auth = db['user_auth']
-interests = db['interests']
-videos_collection = db['videos']
-
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
@@ -40,54 +28,7 @@ chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 WATCH_DIR = os.path.join(BASE_DIR, 'Frontend', 'flask-backend', 'assets')
 
-ARTICLE_LINKS = [
-    "https://www.gov.ca.gov/2024/07/25/california-secures-federal-assistance-to-support-response-to-park-fire/",
-    "https://www.gov.ca.gov/2024/07/26/governor-newsom-proclaims-state-of-emergency-in-plumas-butte-and-tehama-counties-due-to-fires/",
-    "https://www.gov.ca.gov/2024/07/25/governor-newsom-orders-state-agencies-to-address-encampments-in-their-communities-with-urgency-and-dignity/"
-]
-
-class VideoEventHandler(FileSystemEventHandler):
-    def __init__(self, videos_collection, base_path):
-        self.videos_collection = videos_collection
-        self.base_path = base_path
-        self.last_added = {}  # Dictionary to track recently added videos
-
-    def on_created(self, event):
-        if event.is_directory:
-            return
-        if event.src_path.endswith(('.mp4', '.mov')):  # Add other video extensions if needed
-            full_path = os.path.abspath(event.src_path)
-            relative_path = os.path.relpath(full_path, self.base_path)
-            interest = os.path.basename(os.path.dirname(relative_path))
             
-            # Check if this file was recently added (within last 5 seconds)
-            current_time = time.time()
-            if relative_path in self.last_added and current_time - self.last_added[relative_path] < 300:
-                print(f"Ignoring duplicate event for: {relative_path}")
-                return
-
-            # Update last added time
-            self.last_added[relative_path] = current_time
-
-            # Check if the video already exists in the database using the relative path
-            existing_video = self.videos_collection.find_one({'video_path': relative_path})
-            if existing_video is None:
-                # Randomly select an article link from the predefined array
-                article_link = random.choice(ARTICLE_LINKS)
-                video_data = {
-                    'video_path': relative_path,
-                    'article_link': article_link,
-                    'interest': interest
-                }
-                self.videos_collection.insert_one(video_data)
-                print(f"New video added: {video_data}")
-            else:
-                print(f"Video already exists: {relative_path}")
-
-            # Clean up old entries in last_added
-            self.last_added = {k: v for k, v in self.last_added.items() if current_time - v < 60}
-            
-
 # Start the observer
 event_handler = VideoEventHandler(videos_collection, BASE_DIR)
 observer = Observer()
