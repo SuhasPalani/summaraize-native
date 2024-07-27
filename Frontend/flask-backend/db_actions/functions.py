@@ -1,5 +1,7 @@
 import json
 import os
+import bcrypt
+from flask import jsonify
 from pymongo import MongoClient
 from bson import ObjectId
 
@@ -14,3 +16,39 @@ def get_article_url(database,recordId):
         article_url = doc["article_link"]
 
     return article_url
+
+def create_user(database,username, password):
+    if database.user_auth.find_one({'username': username}):
+        return None
+    
+    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    user_id = database.user_auth.insert_one({
+        '_id': ObjectId(),
+        'username': username,
+        'password': hashed_pw   
+    }).inserted_id
+    
+    return user_id 
+
+def update_interest(interests,user_id,interests_list):
+    result = interests.update_one(
+        {"user_id": ObjectId(user_id)},
+        {"$set": {"interests": interests_list}},
+        upsert=True
+    )
+    print(result)
+    if result.upserted_id or result.modified_count > 0:
+        updated_interests = interests.find_one({"user_id": ObjectId(user_id)})
+        return jsonify({
+            "user_id": str(user_id),
+            "interests": updated_interests.get("interests", [])
+        }), 201
+    else:
+        return jsonify({"status": "failure", "message": "Failed to add interests"}), 500
+    
+
+def find_user_interests(db,user_id):
+    records = []
+    for doc in db.interests.find({'user_id' : ObjectId(user_id)},{'interests':1}):
+        records = doc["interests"]
+    return jsonify({"status": "success", "interests": records})

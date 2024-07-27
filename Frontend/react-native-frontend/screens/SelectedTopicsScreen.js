@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, Pressable, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function SelectedTopicsScreen({ route, navigation }) {
@@ -9,6 +9,10 @@ export default function SelectedTopicsScreen({ route, navigation }) {
     console.log('Navigating to Feed with topic:', topic); // Debug log
     navigation.navigate('Feed', { topic });
   };
+
+  const handleModify = () => {
+    navigation.navigate('Interest');
+  }
 
   const renderTopic = (topic) => (
     <Pressable
@@ -28,6 +32,9 @@ export default function SelectedTopicsScreen({ route, navigation }) {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {selectedTopics.map(renderTopic)}
       </ScrollView>
+      <TouchableOpacity style={[styles.button, styles.lightButton]} onPress={handleModify}>
+          <Text style={styles.buttonText}>{'Modify'}</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -59,7 +66,7 @@ const styles = StyleSheet.create({
     height: itemSize, // Ensure height matches width for a square grid item
     margin: itemSpacing / 2, // Adjust margin to create spacing between items
     borderRadius: 10,
-    backgroundColor: '#ddd', // Green background color
+    backgroundColor: '#1560bd', // Green background color
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -70,9 +77,27 @@ const styles = StyleSheet.create({
   },
   topicText: {
     marginTop: 5,
-    color: 'black',
+    color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  lightButton: {
+    backgroundColor: '#007bff',
+  },
+  button: {
+    width: '100%',
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  lightButton: {
+    backgroundColor: '#007bff',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
   },
 });

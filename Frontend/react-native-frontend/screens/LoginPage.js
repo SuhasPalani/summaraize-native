@@ -1,52 +1,106 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, Switch } from 'react-native';
 import { CheckBox, Icon } from 'react-native-elements';
 import { LinearGradient } from 'expo-linear-gradient';
 import { API_URL } from '@env';
+import { SessionContext } from '../Context/SessionContext';
+import LoadingScreen from '../loading/LoadingScreen';
+
+const topics = [
+  { name: 'Artificial Intelligence', icon: 'cogs' },
+  { name: 'Politics', icon: 'balance-scale' },
+  { name: 'Sports', icon: 'soccer-ball-o' },
+  { name: 'Crypto', icon: 'bitcoin' },
+  { name: 'Stock', icon: 'line-chart' },
+  { name: 'Business and Finance', icon: 'briefcase' },
+  { name: 'Science', icon: 'flask' },
+  { name: 'Climate Change', icon: 'tree' },
+  { name: 'Entertainment', icon: 'film' },
+  { name: 'Music', icon: 'music' },
+  { name: 'Technology', icon: 'laptop' },
+  { name: 'Travel', icon: 'plane' },
+  { name: 'Renewable Energy', icon: 'leaf' },
+  { name: 'Space Exploration', icon: 'rocket' },
+  { name: 'Electric Vehicles', icon: 'car' }
+];
 
 const LoginPage = ({ navigation }) => {
+  const { saveSessionID } = useContext(SessionContext);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading,isLoading] = useState(false)
 
   const handleSubmit = async () => {
-
-
     const endpoint = isSignUp ? `${API_URL}/api/signup` : `${API_URL}/api/login`;
 
     try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+        isLoading(true);
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
 
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Success:', data);
-        if (isSignUp) {
-          Alert.alert('Success', 'Account created successfully. Please sign in.');
-          setIsSignUp(false);
+        const json_response = await response.json().catch(error => {
+            throw new Error('Invalid JSON response');
+        });
+
+        if (json_response.status === "success") {
+            if (isSignUp) {
+                Alert.alert('Success', 'Account created successfully. Please sign in.');
+                setIsSignUp(false);
+            } else {
+                await saveSessionID(json_response.token);
+
+                await check_user_interest(json_response.token).then(userInterests => {
+                    if (userInterests.length === 0) {
+                        navigation.navigate('Interest');
+                    } else {
+                        navigation.navigate('SelectedTopics', {
+                            selectedTopics: userInterests.map(topic => topics.find(t => t.name === topic))
+                        });
+                    }
+                });
+            }
         } else {
-          navigation.navigate('Interest', { userId: data.user_id });
+            throw new Error(json_response.message);
         }
-      } else {
-        throw new Error(data.message);
-      }
+        isLoading(false);
     } catch (error) {
-      console.error('Error:', error.message);
-      Alert.alert('Error', error.message || 'An error occurred');
+        isLoading(false);
+        console.error('Error:', error.message);
+        Alert.alert('Error', error.message || 'An error occurred');
     }
-  };
+};
+
+
+  const check_user_interest = async(token) => {
+    isLoading(true)
+    const response = await fetch(`${API_URL}/api/get_user_interests`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    isLoading(false)
+    const json_response = await response.json();
+    const interests_list = json_response.interests;
+    return interests_list;
+  }
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <LinearGradient
@@ -112,7 +166,7 @@ const LoginPage = ({ navigation }) => {
           <Text style={isDarkMode ? styles.darkSwitchText : styles.lightSwitchText}>
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}
           </Text>
-          <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)}>
+          <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)} disabled={loading}>
             <Text style={[styles.signUpLink, isDarkMode ? styles.darkSignUpLink : styles.lightSignUpLink]}>
               {isSignUp ? ' Sign In' : ' Sign Up'}
             </Text>
