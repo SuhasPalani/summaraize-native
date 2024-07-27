@@ -35,50 +35,50 @@ const LoginPage = ({ navigation }) => {
   const [loading,isLoading] = useState(false)
 
   const handleSubmit = async () => {
-
-
     const endpoint = isSignUp ? `${API_URL}/api/signup` : `${API_URL}/api/login`;
 
     try {
-      isLoading(true)
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      }).then(response => response.json()).then(async json_response => {
-        if(json_response.status == "success"){
-          if (isSignUp) {
-            Alert.alert('Success', 'Account created successfully. Please sign in.');
-            setIsSignUp(false);
-          } else {
-            await saveSessionID(json_response.token);
+        isLoading(true);
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
 
-            await check_user_interest(json_response.token).then(userInterests => {
-              if (userInterests.length == 0){
-                navigation.navigate('Interest');
-              }
-              else{
-                navigation.navigate('SelectedTopics', {
-                  selectedTopics: userInterests.map(topic => topics.find(t => t.name === topic))
+        const json_response = await response.json().catch(error => {
+            throw new Error('Invalid JSON response');
+        });
+
+        if (json_response.status === "success") {
+            if (isSignUp) {
+                Alert.alert('Success', 'Account created successfully. Please sign in.');
+                setIsSignUp(false);
+            } else {
+                await saveSessionID(json_response.token);
+
+                await check_user_interest(json_response.token).then(userInterests => {
+                    if (userInterests.length === 0) {
+                        navigation.navigate('Interest');
+                    } else {
+                        navigation.navigate('SelectedTopics', {
+                            selectedTopics: userInterests.map(topic => topics.find(t => t.name === topic))
+                        });
+                    }
                 });
-              }
-           })
-          } 
+            }
         } else {
             throw new Error(json_response.message);
         }
-        isLoading(false)
-      }).catch(error => {
-        isLoading(false)
+        isLoading(false);
+    } catch (error) {
+        isLoading(false);
         console.error('Error:', error.message);
         Alert.alert('Error', error.message || 'An error occurred');
-      });
-    } catch (error) {
-      
     }
-  };
+};
+
 
   const check_user_interest = async(token) => {
     isLoading(true)
