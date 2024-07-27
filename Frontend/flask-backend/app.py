@@ -1,6 +1,7 @@
 import os
 import time
 import bcrypt
+
 import jwt
 import random
 from datetime import datetime, timedelta
@@ -8,6 +9,7 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from flask import Flask, request, jsonify, session, send_from_directory
 from bson.objectid import ObjectId
+
 from flask_cors import CORS
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -17,6 +19,7 @@ from user_auth_actions.functions import *
 
 load_dotenv()
 mongo_uri = os.getenv('MONGO_URI')
+
 if os.getenv("OPENAI_API_KEY") is not None: 
     chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
 
@@ -29,6 +32,7 @@ videos_collection = db['videos']
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+
 
 chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
 
@@ -90,6 +94,7 @@ observer = Observer()
 observer.schedule(event_handler, WATCH_DIR, recursive=True)
 observer.start()
 
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
@@ -125,6 +130,7 @@ def signup():
 @app.route('/api/interest', methods=['POST'])
 def interest():
     headers = request.headers
+
     bearer_token = headers.get('Authorization')
     
     if not bearer_token:
@@ -137,12 +143,14 @@ def interest():
 
     isValid, response_message = verify_user(clean_token, app)
 
+
     if not isValid:
         return response_message
     
     user_id = response_message
     data = request.json
     interests_list = data.get('topics', [])
+
 
     result = interests.update_one(
         {"user_id": ObjectId(user_id)},
@@ -160,6 +168,7 @@ def interest():
         }), 201
     else:
         return jsonify({"status": "failure", "message": "Failed to add interests"}), 500
+
 
 @app.route('/api/summary', methods=['GET'])
 def get_summary():
@@ -184,12 +193,7 @@ def get_bot_response():
 @app.route('/api/get_user_interests', methods=['GET'])
 def get_user_interests():
     headers = request.headers
-    bearer_token = headers.get('Authorization')
-    
-    if bearer_token.startswith('Bearer '):
-        clean_token = bearer_token[7:]
-    else:
-        clean_token = bearer_token
+
 
     isValid, response_message = verify_user(clean_token, app)
 
@@ -201,6 +205,7 @@ def get_user_interests():
         for doc in db.interests.find({'user_id': ObjectId(user_id)}, {'interests': 1}):
             records = doc["interests"]
         return jsonify({"status": "success", "interests": records})
+
     else:
         return response_message
 
