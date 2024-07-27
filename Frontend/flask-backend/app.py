@@ -1,7 +1,6 @@
 import os
 import time
 import bcrypt
-
 import jwt
 import random
 from datetime import datetime, timedelta
@@ -9,18 +8,17 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from flask import Flask, request, jsonify, session, send_from_directory
 from bson.objectid import ObjectId
-
 from flask_cors import CORS
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from db_actions.functions import *
 from retrievers.functions import *
 from user_auth_actions.functions import *
+from db_actions.video_handler import *
 
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-
 
 chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
 
@@ -28,13 +26,7 @@ chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 WATCH_DIR = os.path.join(BASE_DIR, 'Frontend', 'flask-backend', 'assets')
 
-            
-# Start the observer
-event_handler = VideoEventHandler(videos_collection, BASE_DIR)
-observer = Observer()
-observer.schedule(event_handler, WATCH_DIR, recursive=True)
-observer.start()
-
+observer = start_observer(videos_collection, BASE_DIR, WATCH_DIR)            
 
 @app.route('/api/login', methods=['POST'])
 def login():
