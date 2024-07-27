@@ -1,12 +1,22 @@
 import json
 import os
+import random
+from datetime import datetime, timedelta
 import bcrypt
 from flask import jsonify
 from pymongo import MongoClient
 from bson import ObjectId
-
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 from dotenv import load_dotenv
 load_dotenv()
+
+mongo_uri = os.getenv('MONGO_URI')
+client = MongoClient(mongo_uri)
+db = client['Summaraize']
+user_auth = db['user_auth']
+interests = db['interests']
+videos_collection = db['videos']
 
 def get_article_url(database,recordId):
 
