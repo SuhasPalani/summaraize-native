@@ -20,19 +20,18 @@ def decode_token(token,app):
     except jwt.InvalidTokenError:
         return None
     
-def verify_user(headers,app):
-    bearer_token = headers.get('Authorization')
-    
-    if bearer_token.startswith('Bearer '):
-        clean_token = bearer_token[7:]
+def verify_user(token, app):
+    # Check if the token starts with 'Bearer '
+    if token.startswith('Bearer '):
+        clean_token = token[7:]
     else:
-        clean_token = bearer_token
+        clean_token = token
+
     if not clean_token:
         return False, jsonify({"status": "failure", "message": "Missing or invalid token"}), 401
     
-    user_id = decode_token(clean_token,app)
+    user_id = decode_token(clean_token, app)
     if not user_id:
         return False, jsonify({"status": "failure", "message": "Invalid or expired token"}), 401
     
-    else:
-        return True, user_id
+    return True, user_id

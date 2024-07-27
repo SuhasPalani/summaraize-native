@@ -193,9 +193,13 @@ def get_bot_response():
 @app.route('/api/get_user_interests', methods=['GET'])
 def get_user_interests():
     headers = request.headers
+    bearer_token = headers.get('Authorization')
 
-
-    isValid, response_message = verify_user(clean_token, app)
+    if not bearer_token:
+        return jsonify({"status": "failure", "message": "Authorization token not provided"}), 400
+    
+    # Pass the token directly to verify_user
+    isValid, response_message = verify_user(bearer_token, app)
 
     if isValid:
         records = []
@@ -206,8 +210,8 @@ def get_user_interests():
             records = doc["interests"]
         return jsonify({"status": "success", "interests": records})
 
-    else:
-        return response_message
+    return response_message
+
 
 @app.route('/api/videos/<topic>', methods=['GET'])
 def get_videos(topic):
