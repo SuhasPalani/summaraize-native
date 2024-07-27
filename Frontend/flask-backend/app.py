@@ -20,6 +20,7 @@ client = MongoClient(mongo_uri)
 db = client['Summaraize']
 user_auth = db['user_auth']
 interests= db['interests']
+videos_collection = db['videos']
 
 app = Flask(__name__)
 CORS(app)
@@ -60,27 +61,7 @@ def signup():
         return jsonify({"status": "failure", "message": "User already exists"}), 400
 
     
-def create_topic_folders(topics, base_path=None):
-    if base_path is None:
-        # Define the base_path relative to the location of this script
-        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'assets'))
 
-    if not os.path.exists(base_path):
-        # You mentioned the 'assets' folder already exists, so this part might be redundant.
-        print(f"Base path does not exist: {base_path}")
-        return
-
-    for topic in topics:
-        topic_path = os.path.join(base_path, topic.lower().replace(" ", "_"))
-        try:
-            if not os.path.exists(topic_path):
-                os.makedirs(topic_path)
-                print(f"Created folder: {topic_path}")
-            else:
-                print(f"Folder already exists: {topic_path}")
-        except Exception as e:
-            print(f"Error creating folder {topic_path}: {str(e)}")
-            
 @app.route('/api/interest', methods=['POST'])
 def interest():
     headers = request.headers
@@ -113,24 +94,7 @@ def interest():
         updated_interests = interests.find_one({"user_id": ObjectId(user_id)})
         print(f"Updated interests: {interests_list}")
 
-        # Create and remove folders
-        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'assets'))
-        existing_folders = [f for f in os.listdir(base_path) if os.path.isdir(os.path.join(base_path, f))]
-        current_folders = [topic.lower().replace(" ", "_") for topic in interests_list]
-
-        # Create folders for new interests
-        create_topic_folders(interests_list, base_path)
-
-        # Remove folders for interests that are no longer present
-        for folder in existing_folders:
-            if folder not in current_folders:
-                folder_path = os.path.join(base_path, folder)
-                try:
-                    os.rmdir(folder_path)
-                    print(f"Deleted folder: {folder_path}")
-                except Exception as e:
-                    print(f"Error deleting folder {folder_path}: {str(e)}")
-
+        # Instead of creating and deleting folders, just update interests in the database
         return jsonify({
             "user_id": str(user_id),
             "interests": updated_interests.get("interests", [])
@@ -139,9 +103,6 @@ def interest():
         return jsonify({"status": "failure", "message": "Failed to add interests"}), 500
 
 
-    
-    
-    
 @app.route('/api/summary', methods=['GET'])
 def get_summary():
     summary_data = {
@@ -203,4 +164,4 @@ def serve_video(topic, filename):
     return send_from_directory(base_path, filename)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
