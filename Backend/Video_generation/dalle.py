@@ -25,4 +25,4 @@ def generate_image(prompt, n=1, size="1024x1024"):
 
 if __name__ == '__main__':
 # Example usage
-    generate_image("boy standing in a beach")
+    generate_image("donkey riding car in an indian highway")

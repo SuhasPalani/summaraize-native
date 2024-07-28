@@ -16,9 +16,9 @@ def fal_image_gen(prompt):
     )
     result = handler.get()
     print(result)
-    return result['video']['url']
+    return result['images']['url']
 
 if __name__ == '__main__':
     #fastest image generation api
-    prompt = "Narendra Modi singing"
+    prompt = "donkey riding car in an indian highway"
     fal_image_gen(prompt)
