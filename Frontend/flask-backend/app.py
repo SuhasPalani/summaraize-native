@@ -112,13 +112,9 @@ def get_user_interests():
 
 @app.route('/api/videos/<topic>', methods=['GET'])
 def get_videos(topic):
-    base_path = os.path.join(WATCH_DIR, topic)
-    if os.path.exists(base_path):
-        files = os.listdir(base_path)
-        videos = [f for f in files if f.endswith(('.mp4', '.mov'))]  # Add other video extensions if needed
-        return jsonify({'videos': videos})
-    else:
-        return jsonify({'error': 'Topic not found'}), 404
+    return jsonify(find_videos(topic))
+
+
 
 @app.route('/api/video/<topic>/<filename>', methods=['GET'])
 def serve_video(topic, filename):

@@ -9,9 +9,10 @@ from bson import ObjectId
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from dotenv import load_dotenv
-load_dotenv()
 
+load_dotenv()
 mongo_uri = os.getenv('MONGO_URI')
+
 client = MongoClient(mongo_uri)
 db = client['Summaraize']
 user_auth = db['user_auth']
@@ -62,3 +63,18 @@ def find_user_interests(db,user_id):
     for doc in db.interests.find({'user_id' : ObjectId(user_id)},{'interests':1}):
         records = doc["interests"]
     return jsonify({"status": "success", "interests": records})
+
+
+def find_videos(interest):
+    query = {"interest": interest}
+    video_list = []
+
+    documents = videos_collection.find(query).limit(5)
+
+    for doc in documents:
+        video_list.append(doc)
+    return video_list
+
+if __name__ == '__main__':
+        
+    print(find_videos('music'))
