@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # print(os.getenv('OPENAI_API_KEY'))
-# OpenAI.api_key = os.environ['CHATGPT_API_KEY']
+OpenAI.api_key = os.environ['OPENAI_API_KEY']
 
 
 def set_bot_schema():
@@ -38,19 +38,6 @@ def set_bot_schema():
     return chat, question_answering_prompt,demo_ephemeral_chat_history
 
 
-def response_retriever(url, question, chat, question_answering_prompt,demo_ephemeral_chat_history):
-    if validate_url(url):
-        data = load_data_from_web(url)
-        vectorstore = doc_splitter(data)
-        retriever = vectorstore.as_retriever(k=4)
-        retreived_docs = doc_retriever(question,retriever)
-        retrieval_chain = get_retreiver_chain(retreived_docs,retriever,question, chat, question_answering_prompt,demo_ephemeral_chat_history)
-        response = invoke_chain(retrieval_chain,demo_ephemeral_chat_history)
-
-        return response
-    else:
-        return "Invalid news source"
-    
 def load_data_from_web(url):
     loader =  WebBaseLoader(url) 
     data = loader.load()
@@ -59,7 +46,8 @@ def load_data_from_web(url):
 def doc_splitter(data):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     all_splits = text_splitter.split_documents(data)
-    vectorstore = Chroma.from_documents(documents=all_splits, embedding=OpenAIEmbeddings())
+    embedding_function = OpenAIEmbeddings(model="text-embedding-ada-002")
+    vectorstore = Chroma.from_documents(all_splits, embedding_function)
     return vectorstore
 
 def doc_retriever(question,retriever):
@@ -68,7 +56,6 @@ def doc_retriever(question,retriever):
 
 def get_retreiver_chain(docs,retriever,question, chat, question_answering_prompt,demo_ephemeral_chat_history):
     print('im here')
-
     document_chain = create_stuff_documents_chain(chat, question_answering_prompt)
 
         #invoke chain
@@ -112,3 +99,19 @@ def validate_url(url):
 
 def parse_retriever_input(params: Dict):
     return params["messages"][-1].content
+
+
+def response_retriever(url, question, chat, question_answering_prompt,demo_ephemeral_chat_history):
+    print(123123123)
+    if validate_url(url):
+        
+        data = load_data_from_web(url)
+        vectorstore = doc_splitter(data)
+        retriever = vectorstore.as_retriever(k=4)
+        retreived_docs = doc_retriever(question,retriever)
+        retrieval_chain = get_retreiver_chain(retreived_docs,retriever,question, chat, question_answering_prompt,demo_ephemeral_chat_history)
+        response = invoke_chain(retrieval_chain,demo_ephemeral_chat_history)
+
+        return response
+    else:
+        return "Invalid news source"

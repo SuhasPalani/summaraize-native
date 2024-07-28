@@ -3,15 +3,16 @@ import bcrypt
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, session, send_from_directory
 from flask_cors import CORS
-from db_actions.functions import *
+from db_actions.db_functions import *
 from retrievers.retrieval import *
-from user_auth_actions.functions import *
+from user_auth_actions.authenticator import *
 
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 
 chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
+# print(chat,question_answering_prompt,demo_ephemeral_chat_history)
 
 @app.route('/api/summary', methods=['GET'])
 def get_summary():

@@ -20,7 +20,7 @@ def get_article_url(database,recordId):
     for doc in record_details:
         print(doc)
         article_url = doc["article_link"]
-
+    print(article_url)
     return article_url
 
 def create_user(database,username, password):
