@@ -115,11 +115,6 @@ def get_videos(topic):
     return jsonify(find_videos(topic))
 
 
-
-@app.route('/api/video/<topic>/<filename>', methods=['GET'])
-def serve_video(topic, filename):
-    return send_from_directory(os.path.join(WATCH_DIR, topic), filename)
-
 if __name__ == '__main__':
     try:
         app.run(host='0.0.0.0', port=5000, debug=True)
