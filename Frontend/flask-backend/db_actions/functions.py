@@ -1,7 +1,4 @@
-import json
 import os
-import random
-from datetime import datetime, timedelta
 import bcrypt
 from flask import jsonify
 from pymongo import MongoClient
@@ -78,6 +75,5 @@ def find_videos(interest):
 
     return video_list
 
-if __name__ == '__main__':
-        
+if __name__ == '__main__':  
     print(find_videos('music'))

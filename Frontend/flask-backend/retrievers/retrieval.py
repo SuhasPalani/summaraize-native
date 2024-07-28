@@ -2,15 +2,21 @@ import re
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings,OpenAI
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ChatMessageHistory
 from typing import Dict
 from langchain_core.runnables import RunnablePassthrough
+import os
+
 from dotenv import load_dotenv
+
 load_dotenv()
+# print(os.getenv('OPENAI_API_KEY'))
+# OpenAI.api_key = os.environ['CHATGPT_API_KEY']
+
 
 def set_bot_schema():
     chat = ChatOpenAI(model="gpt-3.5-turbo-1106")
@@ -66,7 +72,6 @@ def get_retreiver_chain(docs,retriever,question, chat, question_answering_prompt
     document_chain = create_stuff_documents_chain(chat, question_answering_prompt)
 
         #invoke chain
-    
 
     demo_ephemeral_chat_history.add_user_message(question)
 

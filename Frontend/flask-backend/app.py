@@ -1,24 +1,26 @@
 import os
-import time
 import bcrypt
-import jwt
-import random
-from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from pymongo import MongoClient
 from flask import Flask, request, jsonify, session, send_from_directory
-from bson.objectid import ObjectId
 from flask_cors import CORS
 from db_actions.functions import *
-from retrievers.functions import *
+from retrievers.retrieval import *
 from user_auth_actions.functions import *
 
 app = Flask(__name__)
 CORS(app)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 
 chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
 
+@app.route('/api/summary', methods=['GET'])
+def get_summary():
+    summary_data = {
+        "title": "SummarAIze",
+        "tagline": "Simplify the noise, embrace the essence",
+        "description": "An AI-powered tool that helps you streamline information and focus on what truly matters."
+    }
+    return jsonify(summary_data)
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -67,15 +69,12 @@ def interest():
 
     return update_interest(interests,user_id,interests_list)
 
+@app.route('/api/videos/<topic>', methods=['GET'])
+def get_videos(topic):
+    response = find_videos(topic)
+    print(response)
+    return jsonify({'response': response})
 
-@app.route('/api/summary', methods=['GET'])
-def get_summary():
-    summary_data = {
-        "title": "SummarAIze",
-        "tagline": "Simplify the noise, embrace the essence",
-        "description": "An AI-powered tool that helps you streamline information and focus on what truly matters."
-    }
-    return jsonify(summary_data)
 
 @app.route('/api/chat', methods=['POST'])
 def get_bot_response():
@@ -97,17 +96,8 @@ def get_user_interests():
     if(isValid):
         user_id = response_message
         return find_user_interests(db,user_id)
-
     else:
         return response_message
 
-
-@app.route('/api/videos/<topic>', methods=['GET'])
-def get_videos(topic):
-    response = find_videos(topic)
-    print(response)
-    return jsonify({'response': response})
-
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True,use_reloader=False)
