@@ -1,17 +1,13 @@
-import json
 import os
-import random
-from datetime import datetime, timedelta
 import bcrypt
 from flask import jsonify
 from pymongo import MongoClient
 from bson import ObjectId
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 from dotenv import load_dotenv
-load_dotenv()
 
+load_dotenv()
 mongo_uri = os.getenv('MONGO_URI')
+
 client = MongoClient(mongo_uri)
 db = client['Summaraize']
 user_auth = db['user_auth']
@@ -24,7 +20,7 @@ def get_article_url(database,recordId):
     for doc in record_details:
         print(doc)
         article_url = doc["article_link"]
-
+    print(article_url)
     return article_url
 
 def create_user(database,username, password):
@@ -62,3 +58,22 @@ def find_user_interests(db,user_id):
     for doc in db.interests.find({'user_id' : ObjectId(user_id)},{'interests':1}):
         records = doc["interests"]
     return jsonify({"status": "success", "interests": records})
+
+def convert_objectid_to_str(doc):
+    if '_id' in doc:
+        doc['_id'] = str(doc['_id'])
+    return doc
+
+def find_videos(interest):
+    query = {"interest": interest}
+    video_list = []
+
+    documents = videos_collection.find(query).limit(5)
+
+    for doc in documents:
+        video_list.append(convert_objectid_to_str(doc))
+
+    return video_list
+
+if __name__ == '__main__':  
+    print(find_videos('music'))
