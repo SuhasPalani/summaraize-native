@@ -6,8 +6,6 @@ import bcrypt
 from flask import jsonify
 from pymongo import MongoClient
 from bson import ObjectId
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 from dotenv import load_dotenv
 
 load_dotenv()

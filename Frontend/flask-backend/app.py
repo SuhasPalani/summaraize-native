@@ -9,12 +9,9 @@ from pymongo import MongoClient
 from flask import Flask, request, jsonify, session, send_from_directory
 from bson.objectid import ObjectId
 from flask_cors import CORS
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 from db_actions.functions import *
 from retrievers.functions import *
 from user_auth_actions.functions import *
-from db_actions.video_handler import *
 
 app = Flask(__name__)
 CORS(app)
@@ -22,11 +19,6 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
 
-# Define the base directory and watch directory
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-WATCH_DIR = os.path.join(BASE_DIR, 'Frontend', 'flask-backend', 'assets')
-
-observer = start_observer(videos_collection, BASE_DIR, WATCH_DIR)            
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -118,8 +110,4 @@ def get_videos(topic):
 
 
 if __name__ == '__main__':
-    try:
-        app.run(host='0.0.0.0', port=5000, debug=True)
-    finally:
-        observer.stop()
-        observer.join()
+    app.run(host='0.0.0.0', port=5000, debug=True)
