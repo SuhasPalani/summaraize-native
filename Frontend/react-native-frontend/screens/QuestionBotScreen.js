@@ -1,16 +1,14 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  FlatList,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
-  TouchableWithoutFeedback,
   SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -20,131 +18,109 @@ export default function QuestionBotScreen() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const scrollViewRef = useRef(null);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [inputAreaHeight, setInputAreaHeight] = useState(60); // Default height of the input area
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", (e) => {
-      setKeyboardVisible(true);
-      // Calculate height dynamically if needed, or set a fixed smaller value
-      setInputAreaHeight(e.endCoordinates.height - 20); // Adjust `-20` as needed
-    });
-
-    const keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setKeyboardVisible(false);
-      setInputAreaHeight(60); // Reset to default height
-    });
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollToEnd({ animated: true });
-    }
-  }, [messages]);
+  const [inputHeight, setInputHeight] = useState(40); // Initial height
+  const flatListRef = useRef(null);
 
   const handleSend = useCallback(async () => {
     if (input.trim()) {
-      setMessages((prevMessages) => [...prevMessages, { text: input, type: "user" }]);
+      const newMessage = { text: input, type: "user" };
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
       setInput("");
+      setInputHeight(40); // Reset input height
       setLoading(true);
 
       try {
         const response = await fetch(`${API_URL}/api/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: input, recordId: '669db362ae5f97bb3f088f9d' }),
-        }).then(response =>response.json()).then(responseJSON => {
-          console.log(responseJSON)
-          setMessages((prevMessages) => [...prevMessages, { text: responseJSON["answer"], type: "bot" }]);
-        }).catch(error => {
-          console.log(error)
+          body: JSON.stringify({
+            question: input,
+            recordId: "669db362ae5f97bb3f088f9d",
+          }),
         });
-
-        //if (!response.ok) {
-        //  throw new Error(`HTTP error! status: ${response.status}`);
-        //}
-
-        //const data = await response.json();
+        const responseJSON = await response.json();
+        console.log(responseJSON);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { text: responseJSON["answer"], type: "bot" },
+        ]);
       } catch (error) {
         console.error("Error:", error.message);
-        setMessages((prevMessages) => [...prevMessages, { text: "Sorry, there was an error processing your request.", type: "bot" }]);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            text: "Sorry, there was an error processing your request.",
+            type: "bot",
+          },
+        ]);
       } finally {
         setLoading(false);
-        // Ensure input area returns to original position after sending
-        setTimeout(() => {
-          setInputAreaHeight(60); // Adjust or remove this value to fine-tune the position
-        }, 100); // Small delay to ensure layout update
       }
     }
   }, [input]);
 
+  const renderItem = ({ item }) => (
+    <View
+      style={[
+        styles.message,
+        item.type === "user" ? styles.userMessage : styles.botMessage,
+      ]}
+    >
+      <Icon
+        name={item.type === "user" ? "user" : "cogs"}
+        size={24}
+        color="#fff"
+        style={styles.messageIcon}
+      />
+      <View style={styles.messageTextWrapper}>
+        <Text style={styles.messageText}>{item.text}</Text>
+      </View>
+    </View>
+  );
+
+  const handleContentSizeChange = (event) => {
+    setInputHeight(Math.max(40, event.nativeEvent.contentSize.height));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        style={styles.innerContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"} // Use "height" for Android
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0} // Adjust if needed for Android
+        style={styles.keyboardAvoidingView}
+        behavior="padding"
+        keyboardVerticalOffset={80}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.contentContainer}>
-            <ScrollView
-              style={styles.messagesContainer}
-              ref={scrollViewRef}
-              contentContainerStyle={styles.scrollContentContainer}
-              keyboardShouldPersistTaps="handled"
-            >
-              {messages.map((message, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.message,
-                    message.type === "user" ? styles.userMessage : styles.botMessage,
-                  ]}
-                >
-                  <Icon
-                    name={message.type === "user" ? "user" : "cogs"}
-                    size={30}
-                    color="#fff"
-                    style={styles.messageIcon}
-                  />
-                  <View style={styles.messageTextWrapper}>
-                    <Text style={styles.messageText}>{message.text}</Text>
-                  </View>
-                </View>
-              ))}
-              {loading && (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color="#333" />
-                  <Text style={styles.loadingText}>Thinking...</Text>
-                </View>
-              )}
-            </ScrollView>
-            <View
-              style={[
-                styles.inputContainer,
-                { marginBottom: keyboardVisible ? inputAreaHeight : 0 },
-              ]}
-            >
-              <TextInput
-                style={styles.input}
-                value={input}
-                onChangeText={setInput}
-                placeholder="Type your message..."
-                placeholderTextColor="#888"
-                onSubmitEditing={handleSend}
-              />
-              <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-                <Icon name="paper-plane" size={24} color="#fff" />
-              </TouchableOpacity>
-            </View>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+          contentContainerStyle={styles.messagesContainer}
+          onContentSizeChange={() =>
+            flatListRef.current?.scrollToEnd({ animated: true })
+          }
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        />
+        {loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#6A0D91" />
+            <Text style={styles.loadingText}>Thinking...</Text>
           </View>
-        </TouchableWithoutFeedback>
+        )}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={[styles.input, { height: Math.min(120, inputHeight) }]}
+            value={input}
+            onChangeText={setInput}
+            placeholder="Type your message..."
+            placeholderTextColor="#888"
+            onSubmitEditing={handleSend}
+            multiline
+            onContentSizeChange={handleContentSizeChange}
+          />
+          <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
+            <Icon name="paper-plane" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -155,21 +131,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F5F5F5",
   },
-  innerContainer: {
+  keyboardAvoidingView: {
     flex: 1,
-    flexDirection: "column",
-  },
-  contentContainer: {
-    flex: 1,
-    justifyContent: "space-between",
   },
   messagesContainer: {
-    flex: 1,
-    padding: 10,
-  },
-  scrollContentContainer: {
     flexGrow: 1,
-    justifyContent: "flex-end",
+    padding: 10,
+    paddingBottom: 60,
   },
   message: {
     flexDirection: "row",
@@ -178,6 +146,11 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 15,
     maxWidth: "75%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
   },
   userMessage: {
     alignSelf: "flex-end",
@@ -200,7 +173,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
     padding: 10,
     borderTopWidth: 1,
     borderTopColor: "#E0E0E0",
@@ -215,20 +188,34 @@ const styles = StyleSheet.create({
     marginRight: 10,
     backgroundColor: "#F5F5F5",
     color: "#000000",
+    maxHeight: 120,
+    minHeight: 40,
   },
   sendButton: {
     backgroundColor: "#6A0D91",
     padding: 10,
     borderRadius: 50,
     alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   loadingContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
     alignItems: "center",
-    marginVertical: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   loadingText: {
     marginTop: 5,
     fontSize: 16,
-    color: "#333",
+    color: "#FFFFFF",
   },
 });

@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; // or use any other icon set
-import { API_URL } from '@env'; // Correct import for API_URL
+import Icon from 'react-native-vector-icons/FontAwesome'; 
+import { API_URL } from '@env';
+import { SessionContext } from '../Context/SessionContext';
+import LoadingScreen from '../loading/LoadingScreen';
+import { LinearGradient } from 'expo-linear-gradient'; 
 
 const topics = [
   { name: 'Artificial Intelligence', icon: 'cogs' },
@@ -24,6 +27,33 @@ const topics = [
 export default function InterestScreen({ navigation }) {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { sessionID } = useContext(SessionContext);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (sessionID) {
+        try {
+          const response = await fetch(`${API_URL}/api/get_user_interests`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${sessionID}`,
+            },
+          });
+
+          const data = await response.json();
+          console.log(data["interests"][0])
+          uniqueInterests = Array.from(new Set(data["interests"]))
+          setSelectedTopics([...selectedTopics,...uniqueInterests])
+          
+        } catch (error) {
+          console.error('Failed to fetch data', error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [sessionID]);
+
 
   const toggleTopic = (topic) => {
     setSelectedTopics(prev =>
@@ -39,6 +69,7 @@ export default function InterestScreen({ navigation }) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionID}`,
       },
       body: JSON.stringify({ topics: selectedTopics }),
     })
@@ -55,8 +86,15 @@ export default function InterestScreen({ navigation }) {
       });
   };
 
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#4c669f', '#3b5998', '#192f6a']}
+      style={styles.container}
+    >
       <Text style={styles.header}>Select Your Interests</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {topics.map(topic => (
@@ -68,10 +106,18 @@ export default function InterestScreen({ navigation }) {
             ]}
             onPress={() => toggleTopic(topic.name)}
           >
-            <View style={styles.iconContainer}>
-              <Icon name={topic.icon} size={40} color="#fff" />
-              <Text style={styles.topicText}>{topic.name}</Text>
-            </View>
+            <LinearGradient
+              colors={selectedTopics.includes(topic.name) ? ['#00c6fb', '#005bea'] : ['#a8edea', '#fed6e3']}
+              style={styles.topicGradient}
+            >
+              <View style={styles.iconContainer}>
+                <Icon name={topic.icon} size={30} color={selectedTopics.includes(topic.name) ? '#fff' : '#333'} />
+                <Text style={[
+                  styles.topicText,
+                  selectedTopics.includes(topic.name) && styles.topicTextSelected
+                ]}>{topic.name}</Text>
+              </View>
+            </LinearGradient>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -81,18 +127,23 @@ export default function InterestScreen({ navigation }) {
       <TouchableOpacity
         style={[
           styles.button,
-          { backgroundColor: selectedTopics.length > 0 ? '#1560bd' : '#aaa' }
+          { opacity: selectedTopics.length > 0 ? 1 : 0.5 }
         ]}
         onPress={handleContinue}
         disabled={selectedTopics.length === 0 || loading}
       >
-        {loading ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Continue</Text>
-        )}
+        <LinearGradient
+          colors={['#FF4B2B', '#FF416C']}
+          style={styles.buttonGradient}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Continue</Text>
+          )}
+        </LinearGradient>
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -100,13 +151,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#ffffff',
   },
   header: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#333',
+    color: '#fff',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
   },
   scrollContainer: {
     flexDirection: 'row',
@@ -114,43 +168,65 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   topicBlock: {
-    width: '30%', // Adjusted for smaller tiles
-    height: 100,  // Adjusted height
-    marginBottom: 10,
-    borderRadius: 10,
-    backgroundColor: '#ddd', // Default background color
-    alignItems: 'center',
+    width: '30%',  // Adjusted width for 3 columns
+    aspectRatio: 1, // Adjusted aspect ratio for square blocks
+    marginBottom: 15,
+    borderRadius: 15,
+    overflow: 'hidden',
+    marginRight: '2%',
+    marginLeft:'1%',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  topicGradient: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
   },
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   topicText: {
-    color: 'black',
-    fontSize: 14,
+    color: '#333',
+    fontSize: 12, // Adjusted font size for better fit
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 5,
+    marginTop: 10,
+  },
+  topicTextSelected: {
+    color: '#fff',
   },
   selected: {
-    backgroundColor: '#1560bd', // Highlight color for selected items
+    transform: [{ scale: 1.05 }],
   },
   warning: {
-    color: '#d9534f', // Red color for warning message
+    color: '#FFF176',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
     marginVertical: 15,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
   },
   button: {
-    padding: 15,
     borderRadius: 30,
-    alignItems: 'center',
+    overflow: 'hidden',
     marginTop: 20,
+  },
+  buttonGradient: {
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    alignItems: 'center',
   },
   buttonText: {
     color: 'white',
     fontSize: 18,
+    fontWeight: 'bold',
   },
 });
