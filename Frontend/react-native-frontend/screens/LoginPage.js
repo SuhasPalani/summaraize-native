@@ -1,5 +1,14 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, Switch } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  StyleSheet, 
+  Alert, 
+  TouchableOpacity, 
+  Switch, 
+  Animated 
+} from 'react-native';
 import { CheckBox, Icon } from 'react-native-elements';
 import { LinearGradient } from 'expo-linear-gradient';
 import { API_URL } from '@env';
@@ -32,67 +41,67 @@ const LoginPage = ({ navigation }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading,isLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   const handleSubmit = async () => {
     const endpoint = isSignUp ? `${API_URL}/api/signup` : `${API_URL}/api/login`;
-
     try {
-        isLoading(true);
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
-
-        const json_response = await response.json().catch(error => {
-            throw new Error('Invalid JSON response');
-        });
-
-        if (json_response.status === "success") {
-            if (isSignUp) {
-                Alert.alert('Success', 'Account created successfully. Please sign in.');
-                setIsSignUp(false);
-            } else {
-                await saveSessionID(json_response.token);
-
-                await check_user_interest(json_response.token).then(userInterests => {
-                    if (userInterests.length === 0) {
-                        navigation.navigate('Interest');
-                    } else {
-                        navigation.navigate('SelectedTopics', {
-                            selectedTopics: userInterests.map(topic => topics.find(t => t.name === topic))
-                        });
-                    }
-                });
-            }
+      setLoading(true);
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+      const json_response = await response.json();
+      if (json_response.status === "success") {
+        if (isSignUp) {
+          Alert.alert('Success', 'Account created successfully. Please sign in.');
+          setIsSignUp(false);
         } else {
-            throw new Error(json_response.message);
+          await saveSessionID(json_response.token);
+          const userInterests = await check_user_interest(json_response.token);
+          if (userInterests.length === 0) {
+            navigation.navigate('Interest');
+          } else {
+            navigation.navigate('SelectedTopics', {
+              selectedTopics: userInterests.map(topic => topics.find(t => t.name === topic))
+            });
+          }
         }
-        isLoading(false);
+      } else {
+        throw new Error(json_response.message);
+      }
+      setLoading(false);
     } catch (error) {
-        isLoading(false);
-        console.error('Error:', error.message);
-        Alert.alert('Error', error.message || 'An error occurred');
+      setLoading(false);
+      console.error('Error:', error.message);
+      Alert.alert('Error', error.message || 'An error occurred');
     }
-};
+  };
 
-
-  const check_user_interest = async(token) => {
-    isLoading(true)
+  const check_user_interest = async (token) => {
+    setLoading(true);
     const response = await fetch(`${API_URL}/api/get_user_interests`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
       },
     });
-    isLoading(false)
+    setLoading(false);
     const json_response = await response.json();
-    const interests_list = json_response.interests;
-    return interests_list;
-  }
+    return json_response.interests;
+  };
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -104,84 +113,80 @@ const LoginPage = ({ navigation }) => {
 
   return (
     <LinearGradient
-      colors={isDarkMode ? ['#0f0f0f', '#1c1c1e'] : ['#ffffff', '#f5f5f5']}
+      colors={isDarkMode ? ['#1a1a2e', '#16213e'] : ['#f0f2f5', '#e2e8f0']}
       style={styles.linearGradient}
     >
-      <View style={styles.container}>
-        <Text style={[styles.header, isDarkMode ? styles.darkHeader : styles.lightHeader]}>
-          {isSignUp ? 'Sign Up' : 'Sign In'}
-        </Text>
-        <TextInput
-          style={[styles.input, isDarkMode ? styles.darkInput : styles.lightInput]}
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-          keyboardType="default"
-          placeholderTextColor={isDarkMode ? '#888' : '#555'}
-        />
-        <View style={[styles.input, isDarkMode ? styles.darkInput : styles.lightInput, styles.passwordContainer]}>
-          <TextInput
-            style={{ flex: 1, color: isDarkMode ? '#fff' : '#000' }}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-            placeholderTextColor={isDarkMode ? '#888' : '#555'}
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Icon
-              name={showPassword ? 'eye-slash' : 'eye'}
-              type='font-awesome'
-              color={isDarkMode ? '#fff' : '#000'}
-              size={20}
-            />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.checkboxContainer}>
-          <CheckBox
-            checked={rememberMe}
-            onPress={() => setRememberMe(!rememberMe)}
-            checkedColor={isDarkMode ? '#fff' : '#000'}
-          />
-          <Text style={isDarkMode ? styles.darkCheckboxText : styles.lightCheckboxText}>Remember me</Text>
-        </View>
-        <TouchableOpacity>
-          <Text style={isDarkMode ? styles.darkForgotPassword : styles.lightForgotPassword}>Forgot password?</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, isDarkMode ? styles.darkButton : styles.lightButton]} onPress={handleSubmit}>
-          <Text style={isDarkMode ? styles.darkButtonText : styles.lightButtonText}>{isSignUp ? 'Sign Up' : 'Sign In'}</Text>
-        </TouchableOpacity>
-        <View style={styles.orContainer}>
-          <Text style={isDarkMode ? styles.darkOrText : styles.lightOrText}>Or Sign in with</Text>
-        </View>
-        <View style={styles.socialButtonsContainer}>
-          <TouchableOpacity style={[styles.socialButton, styles.facebookButton]}>
-            <Text style={styles.socialButtonText}>Facebook</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.socialButton, styles.googleButton]}>
-            <Text style={styles.socialButtonText}>Google</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.signUpContainer}>
-          <Text style={isDarkMode ? styles.darkSwitchText : styles.lightSwitchText}>
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+      <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+        <View style={styles.card}>
+          <Text style={[styles.header, isDarkMode ? styles.darkHeader : styles.lightHeader]}>
+            {isSignUp ? 'Create Account' : 'Welcome Back'}
           </Text>
-          <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)} disabled={loading}>
-            <Text style={[styles.signUpLink, isDarkMode ? styles.darkSignUpLink : styles.lightSignUpLink]}>
-              {isSignUp ? ' Sign In' : ' Sign Up'}
+          
+          <TextInput
+            style={[styles.input, isDarkMode ? styles.darkInput : styles.lightInput]}
+            placeholder="Username"
+            placeholderTextColor={isDarkMode ? '#a0aec0' : '#718096'}
+            value={username}
+            onChangeText={setUsername}
+          />
+          
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={[styles.input, styles.passwordInput, isDarkMode ? styles.darkInput : styles.lightInput]}
+              placeholder="Password"
+              placeholderTextColor={isDarkMode ? '#a0aec0' : '#718096'}
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity style={styles.eyeIcon} onPress={() => setShowPassword(!showPassword)}>
+              <Icon
+                name={showPassword ? 'eye-slash' : 'eye'}
+                type="font-awesome"
+                color={isDarkMode ? '#a0aec0' : '#718096'}
+              />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.checkboxContainer}>
+            <CheckBox
+              checked={rememberMe}
+              onPress={() => setRememberMe(!rememberMe)}
+              checkedColor={isDarkMode ? '#60a5fa' : '#3b82f6'}
+              containerStyle={styles.checkbox}
+            />
+            <Text style={isDarkMode ? styles.darkCheckboxText : styles.lightCheckboxText}>
+              Remember me
+            </Text>
+          </View>
+          
+          <TouchableOpacity
+            style={[styles.button, isDarkMode ? styles.darkButton : styles.lightButton]}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {isSignUp ? 'Sign Up' : 'Sign In'}
+            </Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity onPress={() => setIsSignUp(!isSignUp)}>
+            <Text style={[styles.switchText, isDarkMode ? styles.darkSwitchText : styles.lightSwitchText]}>
+              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
             </Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.themeToggleContainer}>
-          <Text style={isDarkMode ? styles.darkThemeToggleText : styles.lightThemeToggleText}>Dark Mode</Text>
+        
+        <View style={styles.themeSwitchContainer}>
+          <Text style={isDarkMode ? styles.darkThemeText : styles.lightThemeText}>Dark Mode</Text>
           <Switch
             value={isDarkMode}
             onValueChange={toggleTheme}
-            thumbColor={isDarkMode ? '#fff' : '#000'}
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
+            trackColor={{ false: "#767577", true: "#60a5fa" }}
+            thumbColor={isDarkMode ? "#3b82f6" : "#f4f3f4"}
           />
         </View>
-      </View>
+      </Animated.View>
     </LinearGradient>
   );
 };
@@ -196,16 +201,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
   },
+  card: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    padding: 32,
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
   header: {
-    fontSize: 32,
-    marginBottom: 32,
+    fontSize: 28,
+    marginBottom: 24,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   darkHeader: {
     color: '#fff',
   },
   lightHeader: {
-    color: '#000',
+    color: '#1a202c',
   },
   input: {
     width: '100%',
@@ -217,38 +238,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   darkInput: {
-    borderColor: '#333',
-    backgroundColor: '#2c2c2e',
+    borderColor: '#4a5568',
+    backgroundColor: 'rgba(74, 85, 104, 0.2)',
     color: '#fff',
   },
   lightInput: {
-    borderColor: '#ccc',
+    borderColor: '#e2e8f0',
     backgroundColor: '#fff',
-    color: '#000',
+    color: '#1a202c',
   },
   passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    position: 'relative',
+  },
+  passwordInput: {
+    paddingRight: 48,
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 16,
+    top: 12,
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
     marginBottom: 16,
   },
+  checkbox: {
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    padding: 0,
+    margin: 0,
+  },
   darkCheckboxText: {
-    color: '#fff',
-    marginLeft: 8,
+    color: '#e2e8f0',
   },
   lightCheckboxText: {
-    color: '#000',
-    marginLeft: 8,
-  },
-  darkForgotPassword: {
-    color: '#1e90ff',
-  },
-  lightForgotPassword: {
-    color: '#007bff',
+    color: '#4a5568',
   },
   button: {
     width: '100%',
@@ -259,86 +284,37 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   darkButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: '#3b82f6',
   },
   lightButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#4299e1',
   },
-  darkButtonText: {
+  buttonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
-  lightButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  orContainer: {
-    marginBottom: 16,
-  },
-  darkOrText: {
-    color: '#fff',
-  },
-  lightOrText: {
-    color: '#000',
-  },
-  socialButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 16,
-  },
-  socialButton: {
-    width: '48%',
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 8,
-  },
-  facebookButton: {
-    backgroundColor: '#3b5998',
-  },
-  googleButton: {
-    backgroundColor: '#db4437',
-  },
-  socialButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  signUpContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  darkSwitchText: {
-    color: '#fff',
-  },
-  lightSwitchText: {
-    color: '#000',
-  },
-  signUpLink: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  darkSignUpLink: {
-    color: '#1e90ff',
-  },
-  lightSignUpLink: {
-    color: '#007bff',
-  },
-  themeToggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  switchText: {
+    textAlign: 'center',
     marginTop: 16,
   },
-  darkThemeToggleText: {
-    color: '#fff',
+  darkSwitchText: {
+    color: '#60a5fa',
+  },
+  lightSwitchText: {
+    color: '#3b82f6',
+  },
+  themeSwitchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  darkThemeText: {
+    color: '#e2e8f0',
     marginRight: 8,
   },
-  lightThemeToggleText: {
-    color: '#000',
+  lightThemeText: {
+    color: '#4a5568',
     marginRight: 8,
   },
 });

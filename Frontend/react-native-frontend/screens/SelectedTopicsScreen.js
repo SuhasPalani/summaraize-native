@@ -1,103 +1,123 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, Pressable, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function SelectedTopicsScreen({ route, navigation }) {
   const { selectedTopics } = route.params;
 
   const handleTopicPress = (topic) => {
-    console.log('Navigating to Feed with topic:', topic); // Debug log
+    console.log('Navigating to Feed with topic:', topic);
     navigation.navigate('Feed', { topic });
   };
 
   const handleModify = () => {
     navigation.navigate('Interest');
-  }
+  };
 
   const renderTopic = (topic) => (
     <Pressable
       key={topic.name}
       style={styles.topicBlock}
       onPress={() => handleTopicPress(topic)}
-      android_ripple={{ color: '#ddd' }} // Ripple effect for Android
+      android_ripple={{ color: '#ddd' }}
     >
-      <Icon name={topic.icon} size={30} color="white" />
-      <Text style={styles.topicText}>{topic.name}</Text>
+      <LinearGradient
+        colors={['#00c6fb', '#005bea']}
+        style={styles.topicGradient}
+      >
+        <Icon name={topic.icon} size={30} color="white" />
+        <Text style={styles.topicText}>{topic.name}</Text>
+      </LinearGradient>
     </Pressable>
   );
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#4c669f', '#3b5998', '#192f6a']}
+      style={styles.container}
+    >
       <Text style={styles.header}>Your Selected Topics</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {selectedTopics.map(renderTopic)}
+        <View style={styles.topicsContainer}>
+          {selectedTopics.map((topic) => renderTopic(topic))}
+        </View>
       </ScrollView>
       <TouchableOpacity style={[styles.button, styles.lightButton]} onPress={handleModify}>
-          <Text style={styles.buttonText}>{'Modify'}</Text>
+        <LinearGradient
+          colors={['#FF4B2B', '#FF416C']}
+          style={styles.buttonGradient}
+        >
+          <Text style={styles.buttonText}>Modify</Text>
+        </LinearGradient>
       </TouchableOpacity>
-    </View>
+    </LinearGradient>
   );
 }
-
-const { width } = Dimensions.get('window');
-const numColumns = 3.1; // Number of columns in the grid
-const itemSpacing = 10; // Space between items
-const itemSize = (width - (numColumns + 1) * itemSpacing) / numColumns; // Calculate item size based on spacing and number of columns
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: itemSpacing,
-    backgroundColor: '#ffffff',
+    padding: 20,
   },
   header: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: itemSpacing,
-    color: '#333',
+    marginBottom: 20,
+    color: '#fff',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10,
   },
   scrollContainer: {
+    flexGrow: 1,
+  },
+  topicsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
   },
   topicBlock: {
-    width: itemSize, // Set width based on screen size and number of columns
-    height: itemSize, // Ensure height matches width for a square grid item
-    margin: itemSpacing / 2, // Adjust margin to create spacing between items
-    borderRadius: 10,
-    backgroundColor: '#1560bd', // Green background color
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '30%',
+    aspectRatio: 1,
+    marginBottom: 15,
+    marginRight: '2%',
+    marginLeft:'1%', 
+    borderRadius: 15,
+    overflow: 'hidden',
+    elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  topicGradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
   },
   topicText: {
     marginTop: 5,
     color: 'white',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     textAlign: 'center',
   },
   lightButton: {
-    backgroundColor: '#007bff',
+    borderRadius: 30,
+    overflow: 'hidden',
+    marginTop: 20,
   },
-  button: {
-    width: '100%',
-    height: 48,
-    justifyContent: 'center',
+  buttonGradient: {
+    paddingVertical: 15,
+    paddingHorizontal: 30,
     alignItems: 'center',
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  lightButton: {
-    backgroundColor: '#007bff',
   },
   buttonText: {
     color: 'white',
     fontSize: 18,
+    fontWeight: 'bold',
   },
 });

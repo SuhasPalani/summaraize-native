@@ -15,7 +15,8 @@ import { Video } from "expo-av";
 import { useFocusEffect } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
 import YoutubePlayer from "react-native-youtube-iframe";
-import { API_URL } from '@env';
+import { LinearGradient } from "expo-linear-gradient";
+import { API_URL } from "@env";
 
 const { width, height } = Dimensions.get("window");
 
@@ -35,7 +36,6 @@ export default function FeedScreen({ route, navigation }) {
   useEffect(() => {
     navigation.setOptions({ title: topic.name });
 
-    // Fetch videos for the selected topic
     const fetchVideos = async () => {
       try {
         const response = await fetch(`${API_URL}/api/videos/${topic.name.toLowerCase().replace(/\s+/g, '_')}`);
@@ -45,7 +45,7 @@ export default function FeedScreen({ route, navigation }) {
           setIsReady(new Array(data.videos.length).fill(false));
         }
       } catch (error) {
-        console.error('Failed to fetch videos', error);
+        console.error("Failed to fetch videos", error);
       }
     };
 
@@ -216,11 +216,16 @@ export default function FeedScreen({ route, navigation }) {
             }}
           >
             <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-              <Icon
-                name={liked[index] ? "heart" : "heart-outline"}
-                size={30}
-                color="#fff"
-              />
+              <LinearGradient
+                colors={liked[index] ? ["#FF4B2B", "#FF416C"] : ["#333", "#666"]}
+                style={styles.gradientButton}
+              >
+                <Icon
+                  name={liked[index] ? "heart" : "heart-outline"}
+                  size={30}
+                  color="#fff"
+                />
+              </LinearGradient>
             </Animated.View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -230,7 +235,12 @@ export default function FeedScreen({ route, navigation }) {
               animateButton();
             }}
           >
-            <Icon name="robot" size={30} color="#fff" />
+            <LinearGradient
+              colors={["#4c669f", "#3b5998", "#192f6a"]}
+              style={styles.gradientButton}
+            >
+              <Icon name="robot" size={30} color="#fff" />
+            </LinearGradient>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
@@ -241,7 +251,12 @@ export default function FeedScreen({ route, navigation }) {
               animateButton();
             }}
           >
-            <Icon name="link" size={30} color="#fff" />
+            <LinearGradient
+              colors={["#4c669f", "#3b5998", "#192f6a"]}
+              style={styles.gradientButton}
+            >
+              <Icon name="link" size={30} color="#fff" />
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       </View>
@@ -249,24 +264,29 @@ export default function FeedScreen({ route, navigation }) {
   };
 
   return (
-    <FlatList
-      data={videos}
-      renderItem={renderFeedItem}
-      keyExtractor={(item, index) => index.toString()}
-      pagingEnabled
-      showsVerticalScrollIndicator={false}
-      onViewableItemsChanged={onViewableItemsChanged}
-      viewabilityConfig={viewabilityConfig}
-      snapToAlignment="start"
-      decelerationRate="fast"
-    />
+    <LinearGradient
+      colors={["#4c669f", "#3b5998", "#192f6a"]}
+      style={styles.container}
+    >
+      <FlatList
+        data={videos}
+        renderItem={renderFeedItem}
+        keyExtractor={(item, index) => index.toString()}
+        pagingEnabled
+        showsVerticalScrollIndicator={false}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig}
+        snapToAlignment="start"
+        decelerationRate="fast"
+        ref={flatListRef}
+      />
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
   },
   feedItem: {
     width: width,
@@ -277,11 +297,17 @@ const styles = StyleSheet.create({
   videoContainer: {
     width: "100%",
     height: "100%",
+    borderRadius: 20,
+    overflow: "hidden",
+    backgroundColor: "black",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
   },
   video: {
     width: "100%",
     height: "100%",
-    backgroundColor: "black",
   },
   loader: {
     position: "absolute",
@@ -313,10 +339,16 @@ const styles = StyleSheet.create({
   button: {
     padding: 10,
     borderRadius: 50,
-    backgroundColor: "#333",
+    backgroundColor: "transparent",
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,
     marginVertical: 5,
+  },
+  gradientButton: {
+    padding: 15,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
