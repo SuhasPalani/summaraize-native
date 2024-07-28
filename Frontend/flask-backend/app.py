@@ -112,7 +112,9 @@ def get_user_interests():
 
 @app.route('/api/videos/<topic>', methods=['GET'])
 def get_videos(topic):
-    return jsonify(find_videos(topic))
+    response = find_videos(topic)
+    print(response)
+    return jsonify({'response': response})
 
 
 if __name__ == '__main__':

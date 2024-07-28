@@ -64,6 +64,10 @@ def find_user_interests(db,user_id):
         records = doc["interests"]
     return jsonify({"status": "success", "interests": records})
 
+def convert_objectid_to_str(doc):
+    if '_id' in doc:
+        doc['_id'] = str(doc['_id'])
+    return doc
 
 def find_videos(interest):
     query = {"interest": interest}
@@ -72,7 +76,8 @@ def find_videos(interest):
     documents = videos_collection.find(query).limit(5)
 
     for doc in documents:
-        video_list.append(doc)
+        video_list.append(convert_objectid_to_str(doc))
+
     return video_list
 
 if __name__ == '__main__':
