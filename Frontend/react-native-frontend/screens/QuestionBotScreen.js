@@ -68,7 +68,7 @@ export default function QuestionBotScreen() {
     >
       <Icon
         name={item.type === "user" ? "user" : "cogs"}
-        size={30}
+        size={24}
         color="#fff"
         style={styles.messageIcon}
       />
@@ -86,7 +86,7 @@ export default function QuestionBotScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
-        behavior="height"
+        behavior="padding"
         keyboardVerticalOffset={80}
       >
         <FlatList
@@ -102,7 +102,7 @@ export default function QuestionBotScreen() {
         />
         {loading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#333" />
+            <ActivityIndicator size="large" color="#6A0D91" />
             <Text style={styles.loadingText}>Thinking...</Text>
           </View>
         )}
@@ -146,6 +146,11 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 15,
     maxWidth: "75%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
   },
   userMessage: {
     alignSelf: "flex-end",
@@ -168,7 +173,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: "row",
-    alignItems: "flex-end", // Changed from 'center' to 'flex-end'
+    alignItems: "flex-end",
     padding: 10,
     borderTopWidth: 1,
     borderTopColor: "#E0E0E0",
@@ -183,15 +188,20 @@ const styles = StyleSheet.create({
     marginRight: 10,
     backgroundColor: "#F5F5F5",
     color: "#000000",
-    maxHeight: 120, // Maximum height of the input
-    minHeight: 40, // Minimum height of the input
+    maxHeight: 120,
+    minHeight: 40,
   },
   sendButton: {
     backgroundColor: "#6A0D91",
     padding: 10,
     borderRadius: 50,
     alignItems: "center",
-    alignSelf: "flex-end", // Align the button to the bottom
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   loadingContainer: {
     position: "absolute",
@@ -201,11 +211,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   loadingText: {
     marginTop: 5,
     fontSize: 16,
-    color: "#333",
+    color: "#FFFFFF",
   },
 });
