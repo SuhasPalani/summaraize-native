@@ -11,7 +11,7 @@ app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 
-chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
+bot_schema = set_bot_schema()
 # print(chat,question_answering_prompt,demo_ephemeral_chat_history)
 
 @app.route('/api/summary', methods=['GET'])
@@ -79,10 +79,19 @@ def get_videos(topic):
 
 @app.route('/api/chat', methods=['POST'])
 def get_bot_response():
+    headers = request.headers
+    
+    isValid,session_id, response_message = verify_user(headers,app)
+    if(not isValid):
+        return response_message
+    
     question = request.json.get('question')
     recordId = request.json.get('recordId')
+
     article_url = get_article_url(db, recordId)
-    response = response_retriever(article_url, question, chat, question_answering_prompt, demo_ephemeral_chat_history)
+    unique_id = session_id+recordId
+    
+    response = response_retriever(article_url, question,unique_id, bot_schema)
 
     print(response["answer"])
 
