@@ -3,6 +3,7 @@ import os
 import requests
 import threading
 from dotenv import load_dotenv
+from pathlib import Path
 from multi_threading_dalle import generate_multiple_images
 
 load_dotenv()
@@ -47,7 +48,8 @@ def download_video(video_url, save_dir, vid_num):
 
 def video_gen_fun(image_url, vid_num):
     print(f'Starting video generation for video {vid_num} with image URL: {image_url}')
-    save_dir = "Video_generation/temp_vids/"
+    base_path = Path(__file__).parent
+    save_dir = os.path.join(base_path, 'temp_vids')
     os.makedirs(save_dir, exist_ok=True)
     
     url_from_dalle = fal_video_api_fun(image_url, vid_num)
@@ -65,7 +67,7 @@ def video_gen_fun(image_url, vid_num):
         return False
 
 if __name__ == "__main__":
-    image_urls_dict = generate_multiple_images("A red car drifting on the moon", count=3)
+    image_urls_dict = generate_multiple_images("A formula 1 omnivan", count=3)
     if image_urls_dict:
         print(f"Generated image URLs: {image_urls_dict}")
 
