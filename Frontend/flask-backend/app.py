@@ -62,8 +62,8 @@ def signup():
 @app.route('/api/interest', methods=['POST'])
 def interest():
     headers = request.headers
-    
-    isValid, response_message = verify_user(headers,app)
+    # session_id is required to unpack the response from verify user function
+    isValid,session_id, response_message = verify_user(headers,app)
 
     if(not isValid):
         return response_message
@@ -105,7 +105,8 @@ def get_bot_response():
 def get_user_interests():
     headers = request.headers
     
-    isValid, response_message = verify_user(headers,app)
+    # session_id is required to unpack the response from verify user function
+    isValid,session_id, response_message = verify_user(headers,app)
 
     if(isValid):
         user_id = response_message

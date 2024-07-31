@@ -1,11 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Animated, Easing, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Animated, Easing, ActivityIndicator, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const ArticleScreen = ({ route, navigation }) => {
-  const { url } = route.params;
+  const { url, video_id } = route.params; 
   const buttonScale = useRef(new Animated.Value(1)).current;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -28,7 +28,7 @@ const ArticleScreen = ({ route, navigation }) => {
   };
 
   const handleQuestionBot = () => {
-    navigation.navigate('QuestionBot');
+    navigation.navigate('QuestionBot', { video_id }); // Pass video_id to QuestionBot screen
     animateButton();
   };
 
