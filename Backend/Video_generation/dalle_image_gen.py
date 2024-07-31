@@ -24,7 +24,7 @@ def generate_image(prompt):
             return None
     
     except Exception as e:
-        print('Retryin due to {e}')
+        print('Retrying due to {e}')
         
         time.sleep(20)
         return generate_image(prompt)
