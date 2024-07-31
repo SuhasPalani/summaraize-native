@@ -27,7 +27,7 @@ def fal_video_api_fun(image_url, vid_num):
                 log_index = len(event.logs)
 
         result = handler.get()
-        print(f'Result for video {vid_num}:', result)
+
         return result
     except Exception as e:
         print(f'Error in API call for video {vid_num}: {e}')
@@ -42,12 +42,11 @@ def download_video(video_url, save_dir, vid_num):
         with open(save_path, 'wb') as file:
             for chunk in response.iter_content(chunk_size=1024):
                 file.write(chunk)
-        print(f"Video {vid_num} downloaded successfully to {save_path}!")
+        
     except Exception as e:
         print(f"Error downloading video {vid_num}: {e}")
 
 def video_gen_fun(image_url, vid_num):
-    print(f'Starting video generation for video {vid_num} with image URL: {image_url}')
     base_path = Path(__file__).parent
     save_dir = os.path.join(base_path, 'temp_vids')
     os.makedirs(save_dir, exist_ok=True)
@@ -69,7 +68,6 @@ def video_gen_fun(image_url, vid_num):
 if __name__ == "__main__":
     image_urls_dict = generate_multiple_images("Chicago skyline", count=3)
     if image_urls_dict:
-        print(f"Generated image URLs: {image_urls_dict}")
 
         threads = []
         for i, (key, image_url) in enumerate(image_urls_dict.items()):
