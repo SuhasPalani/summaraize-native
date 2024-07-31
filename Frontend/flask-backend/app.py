@@ -1,32 +1,27 @@
 import os
-import time
 import bcrypt
-import jwt
-import random
-from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from pymongo import MongoClient
 from flask import Flask, request, jsonify, session, send_from_directory
-from bson.objectid import ObjectId
 from flask_cors import CORS
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-from db_actions.functions import *
-from retrievers.functions import *
-from user_auth_actions.functions import *
-from db_actions.video_handler import *
+from db_actions.db_functions import *
+from retrievers.retrieval import *
+from user_auth_actions.authenticator import *
 
 app = Flask(__name__)
 CORS(app)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 
-chat, question_answering_prompt, demo_ephemeral_chat_history = set_bot_schema()
+bot_schema = set_bot_schema()
+# print(chat,question_answering_prompt,demo_ephemeral_chat_history)
 
-# Define the base directory and watch directory
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-WATCH_DIR = os.path.join(BASE_DIR, 'Frontend', 'flask-backend', 'assets')
-
-observer = start_observer(videos_collection, BASE_DIR, WATCH_DIR)            
+@app.route('/api/summary', methods=['GET'])
+def get_summary():
+    summary_data = {
+        "title": "SummarAIze",
+        "tagline": "Simplify the noise, embrace the essence",
+        "description": "An AI-powered tool that helps you streamline information and focus on what truly matters."
+    }
+    return jsonify(summary_data)
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -75,22 +70,28 @@ def interest():
 
     return update_interest(interests,user_id,interests_list)
 
+@app.route('/api/videos/<topic>', methods=['GET'])
+def get_videos(topic):
+    response = find_videos(topic)
+    print(response)
+    return jsonify({'response': response})
 
-@app.route('/api/summary', methods=['GET'])
-def get_summary():
-    summary_data = {
-        "title": "SummarAIze",
-        "tagline": "Simplify the noise, embrace the essence",
-        "description": "An AI-powered tool that helps you streamline information and focus on what truly matters."
-    }
-    return jsonify(summary_data)
 
 @app.route('/api/chat', methods=['POST'])
 def get_bot_response():
+    headers = request.headers
+    
+    isValid,session_id, response_message = verify_user(headers,app)
+    if(not isValid):
+        return response_message
+    
     question = request.json.get('question')
     recordId = request.json.get('recordId')
+
     article_url = get_article_url(db, recordId)
-    response = response_retriever(article_url, question, chat, question_answering_prompt, demo_ephemeral_chat_history)
+    unique_id = session_id+recordId
+    
+    response = response_retriever(article_url, question,unique_id, bot_schema)
 
     print(response["answer"])
 
@@ -105,26 +106,8 @@ def get_user_interests():
     if(isValid):
         user_id = response_message
         return find_user_interests(db,user_id)
-
     else:
         return response_message
 
-
-@app.route('/api/videos/<topic>', methods=['GET'])
-def get_videos(topic):
-    response = find_videos(topic)
-    print(response)
-    return jsonify({'response': response})
-
-
-
-@app.route('/api/video/<topic>/<filename>', methods=['GET'])
-def serve_video(topic, filename):
-    return send_from_directory(os.path.join(WATCH_DIR, topic), filename)
-
 if __name__ == '__main__':
-    try:
-        app.run(host='0.0.0.0', port=5000, debug=True)
-    finally:
-        observer.stop()
-        observer.join()
+    app.run(host='0.0.0.0', port=5000, debug=True,use_reloader=False)

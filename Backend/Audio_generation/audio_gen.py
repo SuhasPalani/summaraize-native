@@ -2,14 +2,19 @@ import os
 import uuid
 from gtts import gTTS 
 from datetime import datetime
- 
+from pathlib import Path
+
 def text_to_speech(text):
     try:
-        if not os.path.exists('/Users/nishchal/Desktop/summaraize-native/Backend/temp_files'):
-            os.makedirs('/Users/nishchal/Desktop/summaraize-native/Backend/temp_files')
+        
+        base_path = Path(__file__).parent.parent
+        file_path = os.path.join(base_path,'temp_files')
+        
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
     
         filename = "output.mp3"
-        file_path = os.path.join('/Users/nishchal/Desktop/summaraize-native/Backend/temp_files',filename)
+        file_path = os.path.join(file_path,filename)
         
         tts_model = gTTS(text=text, lang='en', slow=False) # Change to false if faster version is needed
         

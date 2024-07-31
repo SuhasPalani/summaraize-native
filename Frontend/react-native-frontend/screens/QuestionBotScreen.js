@@ -11,6 +11,7 @@ import {
   Platform,
   SafeAreaView,
 } from "react-native";
+import { SessionContext } from '../Context/SessionContext';
 import Icon from "react-native-vector-icons/FontAwesome";
 import { API_URL } from "@env";
 
@@ -20,6 +21,7 @@ export default function QuestionBotScreen() {
   const [loading, setLoading] = useState(false);
   const [inputHeight, setInputHeight] = useState(40); // Initial height
   const flatListRef = useRef(null);
+  const { sessionID } = useContext(SessionContext);
 
   const handleSend = useCallback(async () => {
     if (input.trim()) {
@@ -32,7 +34,10 @@ export default function QuestionBotScreen() {
       try {
         const response = await fetch(`${API_URL}/api/chat`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${sessionID}`
+           },
           body: JSON.stringify({
             question: input,
             recordId: "669db362ae5f97bb3f088f9d",

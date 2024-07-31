@@ -10,15 +10,19 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/cli": "^0.18.25",
+    "@expo/metro-config": "^0.18.9",
     "@expo/vector-icons": "^14.0.2",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/slider": "^4.5.2",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
     "axios": "^1.7.2",
+    "buffer-from": "^1.1.2",
     "dotenv": "^16.4.5",
-    "expo": "~51.0.22",
+    "expo": "^51.0.22",
     "expo-av": "^14.0.6",
+    "expo-cli": "^6.3.12",
     "expo-image": "~1.12.13",
     "expo-linear-gradient": "^13.0.2",
     "expo-status-bar": "~1.12.1",
@@ -37,7 +41,8 @@
     "react-native-vector-icons": "^10.1.0",
     "react-native-video": "^6.4.3",
     "react-native-webview": "^13.8.6",
-    "react-native-youtube-iframe": "^2.3.0"
+    "react-native-youtube-iframe": "^2.3.0",
+    "source-map-support": "^0.5.21"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
