@@ -4,7 +4,7 @@ import requests
 import threading
 from dotenv import load_dotenv
 from pathlib import Path
-from multi_threading_dalle import generate_multiple_images
+from dalle_image_gen import generate_multiple_images
 
 load_dotenv()
 FAL_API_KEY = os.environ["FAL_API_KEY"]
@@ -67,7 +67,7 @@ def video_gen_fun(image_url, vid_num):
         return False
 
 if __name__ == "__main__":
-    image_urls_dict = generate_multiple_images("A formula 1 omnivan", count=3)
+    image_urls_dict = generate_multiple_images("Chicago skyline", count=3)
     if image_urls_dict:
         print(f"Generated image URLs: {image_urls_dict}")
 
