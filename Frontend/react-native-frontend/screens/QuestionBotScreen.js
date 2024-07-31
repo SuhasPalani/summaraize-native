@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useContext } from "react";
 import {
   View,
   Text,
@@ -8,18 +8,17 @@ import {
   FlatList,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Platform,
   SafeAreaView,
 } from "react-native";
-import { SessionContext } from '../Context/SessionContext';
 import Icon from "react-native-vector-icons/FontAwesome";
 import { API_URL } from "@env";
+import { SessionContext } from '../Context/SessionContext';
 
 export default function QuestionBotScreen() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [inputHeight, setInputHeight] = useState(40); // Initial height
+  const [inputHeight, setInputHeight] = useState(40);
   const flatListRef = useRef(null);
   const { sessionID } = useContext(SessionContext);
 
@@ -28,23 +27,22 @@ export default function QuestionBotScreen() {
       const newMessage = { text: input, type: "user" };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setInput("");
-      setInputHeight(40); // Reset input height
+      setInputHeight(40);
       setLoading(true);
 
       try {
         const response = await fetch(`${API_URL}/api/chat`, {
           method: "POST",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             'Authorization': `Bearer ${sessionID}`
-           },
+          },
           body: JSON.stringify({
             question: input,
             recordId: "669db362ae5f97bb3f088f9d",
           }),
         });
         const responseJSON = await response.json();
-        console.log(responseJSON);
         setMessages((prevMessages) => [
           ...prevMessages,
           { text: responseJSON["answer"], type: "bot" },
@@ -62,7 +60,7 @@ export default function QuestionBotScreen() {
         setLoading(false);
       }
     }
-  }, [input]);
+  }, [input, sessionID]);
 
   const renderItem = ({ item }) => (
     <View

@@ -15,8 +15,7 @@ import { Video } from "expo-av";
 import { useFocusEffect } from "@react-navigation/native";
 import Slider from "@react-native-community/slider";
 import YoutubePlayer from "react-native-youtube-iframe";
-import { LinearGradient } from "expo-linear-gradient";
-import { API_URL } from "@env";
+import { API_URL } from '@env';
 
 const { width, height } = Dimensions.get("window");
 
@@ -36,18 +35,23 @@ export default function FeedScreen({ route, navigation }) {
   useEffect(() => {
     navigation.setOptions({ title: topic.name });
 
+    // Fetch videos for the selected topic
     const fetchVideos = async () => {
       try {
         const response = await fetch(`${API_URL}/api/videos/${topic.name.toLowerCase().replace(/\s+/g, '_')}`);
         const data = await response.json();
-        if (data.videos) {
-          setVideos(data.videos.map(video => `${API_URL}/api/video/${topic.name.toLowerCase().replace(/\s+/g, '_')}/${video}`));
-          setIsReady(new Array(data.videos.length).fill(false));
+        if (data) {
+          setVideos(data.map(video => ({
+            ...video,
+            videoUrl: `${API_URL}/api/video/${topic.name.toLowerCase().replace(/\s+/g, '_')}/${video.video_name}`
+          })));
+          setIsReady(new Array(data.length).fill(false));
         }
       } catch (error) {
-        console.error("Failed to fetch videos", error);
+        console.error('Failed to fetch videos', error);
       }
     };
+    
 
     fetchVideos();
   }, [topic, navigation]);
@@ -150,34 +154,33 @@ export default function FeedScreen({ route, navigation }) {
     }, [currentPlayingIndex])
   );
 
-  const renderFeedItem = ({ item: videoUri, index }) => {
-    const isYouTube = videoUri.includes("youtube.com");
-    const videoId = isYouTube ? videoUri.split("v=")[1] : null;
-
+  const renderFeedItem = ({ item, index }) => {
+    const isYouTube = item.videoUrl.includes("youtube.com");
+    const videoId = isYouTube ? item.videoUrl.split("v=")[1] : null;
+  
     return (
       <View style={styles.feedItem}>
-        {isYouTube ? (
-          <YoutubePlayer
-            height={height}
-            width={width}
-            videoId={videoId}
-            play={index === currentPlayingIndex && isPlaying}
-            onChangeState={(state) => {
-              if (state === "ended") {
-                setIsPlaying(false);
-              } else if (state === "playing") {
-                setIsPlaying(true);
-              }
-            }}
-          />
-        ) : (
-          <TouchableWithoutFeedback onPress={() => togglePlayPause(index)}>
-            <View style={styles.videoContainer}>
+        <View style={styles.videoContainer}>
+          {isYouTube ? (
+            <YoutubePlayer
+              height={height}
+              play={index === currentPlayingIndex}
+              videoId={videoId}
+              onChangeState={(state) => {
+                if (state === "ended") {
+                  setIsPlaying(false);
+                } else if (state === "playing") {
+                  setIsPlaying(true);
+                }
+              }}
+            />
+          ) : (
+            <TouchableWithoutFeedback onPress={() => togglePlayPause(index)}>
               <Video
                 ref={(ref) => {
                   videoRefs.current[index] = ref;
                 }}
-                source={{ uri: videoUri }}
+                source={{ uri: item.videoUrl }}
                 rate={1.0}
                 volume={1.0}
                 isMuted={false}
@@ -188,25 +191,25 @@ export default function FeedScreen({ route, navigation }) {
                 }
                 style={styles.video}
               />
+            </TouchableWithoutFeedback>
+          )}
+          {!isReady[index] && !isYouTube && (
+            <ActivityIndicator style={styles.loader} size="large" color="#fff" />
+          )}
+          {index === currentPlayingIndex && !isYouTube && (
+            <View style={styles.sliderContainer}>
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={duration}
+                value={position}
+                onValueChange={onSliderValueChange}
+                minimumTrackTintColor="#FFFFFF"
+                maximumTrackTintColor="#000000"
+              />
             </View>
-          </TouchableWithoutFeedback>
-        )}
-        {!isReady[index] && !isYouTube && (
-          <ActivityIndicator size="large" color="#fff" style={styles.loader} />
-        )}
-        {index === currentPlayingIndex && !isYouTube && (
-          <View style={styles.sliderContainer}>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={duration}
-              value={position}
-              onValueChange={onSliderValueChange}
-              minimumTrackTintColor="#FFFFFF"
-              maximumTrackTintColor="#000000"
-            />
-          </View>
-        )}
+          )}
+        </View>
         <View style={styles.buttons}>
           <TouchableOpacity
             style={styles.button}
@@ -216,16 +219,11 @@ export default function FeedScreen({ route, navigation }) {
             }}
           >
             <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-              <LinearGradient
-                colors={liked[index] ? ["#FF4B2B", "#FF416C"] : ["#333", "#666"]}
-                style={styles.gradientButton}
-              >
-                <Icon
-                  name={liked[index] ? "heart" : "heart-outline"}
-                  size={30}
-                  color="#fff"
-                />
-              </LinearGradient>
+              <Icon
+                name={liked[index] ? "heart" : "heart-outline"}
+                size={30}
+                color={liked[index] ? "red" : "white"}
+              />
             </Animated.View>
           </TouchableOpacity>
           <TouchableOpacity
@@ -235,58 +233,46 @@ export default function FeedScreen({ route, navigation }) {
               animateButton();
             }}
           >
-            <LinearGradient
-              colors={["#4c669f", "#3b5998", "#192f6a"]}
-              style={styles.gradientButton}
-            >
-              <Icon name="robot" size={30} color="#fff" />
-            </LinearGradient>
+            <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+              <Icon name="robot" size={30} color="white" />
+            </Animated.View>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              handleLink(
-                "https://www.gov.ca.gov/2024/07/25/governor-newsom-orders-state-agencies-to-address-encampments-in-their-communities-with-urgency-and-dignity/"
-              );
+              handleLink(item.article_link);
               animateButton();
             }}
           >
-            <LinearGradient
-              colors={["#4c669f", "#3b5998", "#192f6a"]}
-              style={styles.gradientButton}
-            >
-              <Icon name="link" size={30} color="#fff" />
-            </LinearGradient>
+            <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+              <Icon name="link" size={30} color="white" />
+            </Animated.View>
           </TouchableOpacity>
         </View>
       </View>
     );
   };
+  
 
   return (
-    <LinearGradient
-      colors={["#4c669f", "#3b5998", "#192f6a"]}
-      style={styles.container}
-    >
-      <FlatList
-        data={videos}
-        renderItem={renderFeedItem}
-        keyExtractor={(item, index) => index.toString()}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        snapToAlignment="start"
-        decelerationRate="fast"
-        ref={flatListRef}
-      />
-    </LinearGradient>
+    <FlatList
+      data={videos}
+      renderItem={renderFeedItem}
+      keyExtractor={(item, index) => index.toString()}
+      pagingEnabled
+      showsVerticalScrollIndicator={false}
+      onViewableItemsChanged={onViewableItemsChanged}
+      viewabilityConfig={viewabilityConfig}
+      snapToAlignment="start"
+      decelerationRate="fast"
+    />
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#000",
   },
   feedItem: {
     width: width,
@@ -297,17 +283,11 @@ const styles = StyleSheet.create({
   videoContainer: {
     width: "100%",
     height: "100%",
-    borderRadius: 20,
-    overflow: "hidden",
-    backgroundColor: "black",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
   },
   video: {
     width: "100%",
     height: "100%",
+    backgroundColor: "black",
   },
   loader: {
     position: "absolute",
@@ -339,16 +319,10 @@ const styles = StyleSheet.create({
   button: {
     padding: 10,
     borderRadius: 50,
-    backgroundColor: "transparent",
+    backgroundColor: "#333",
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,
     marginVertical: 5,
-  },
-  gradientButton: {
-    padding: 15,
-    borderRadius: 50,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
