@@ -14,7 +14,8 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { API_URL } from "@env";
 import { SessionContext } from '../Context/SessionContext';
 
-export default function QuestionBotScreen() {
+export default function QuestionBotScreen({route}) {
+  const {video_id}=route.params;
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,7 +40,7 @@ export default function QuestionBotScreen() {
           },
           body: JSON.stringify({
             question: input,
-            recordId: "669db362ae5f97bb3f088f9d",
+            recordId: video_id,
           }),
         });
         const responseJSON = await response.json();
@@ -60,7 +61,7 @@ export default function QuestionBotScreen() {
         setLoading(false);
       }
     }
-  }, [input, sessionID]);
+  }, [input, sessionID,video_id]);
 
   const renderItem = ({ item }) => (
     <View

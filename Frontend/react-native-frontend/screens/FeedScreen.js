@@ -80,8 +80,8 @@ export default function FeedScreen({ route, navigation }) {
     }));
   };
 
-  const handleQuestionBot = () => {
-    navigation.navigate("QuestionBot");
+  const handleQuestionBot = (video_id) => {
+    navigation.navigate("QuestionBot",{video_id: video_id});
   };
 
   const handleLink = (url) => {
@@ -229,7 +229,8 @@ export default function FeedScreen({ route, navigation }) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              handleQuestionBot();
+              handleQuestionBot(item._id);
+              console.log('id :>> ', item._id);
               animateButton();
             }}
           >
