@@ -29,10 +29,10 @@ def verify_user(headers,app):
     else:
         clean_token = bearer_token
     if not clean_token:
-        return False, clean_token, jsonify({"status": "failure", "message": "Missing or invalid token"}), 401
+        return False, jsonify({"status": "failure", "message": "Missing or invalid token"}), 401
     user_id = decode_token(clean_token,app)
     if not user_id:
-        return False, clean_token, jsonify({"status": "failure", "message": "Invalid or expired token"}), 401
+        return False, jsonify({"status": "failure", "message": "Invalid or expired token"}), 401
 
     else:
-        return True, clean_token, user_id
+        return True, user_id

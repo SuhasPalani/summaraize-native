@@ -9,10 +9,14 @@ from user_auth_actions.authenticator import *
 
 app = Flask(__name__)
 CORS(app)
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
+CORS(app, resources={r"/api/*": {"origins": "*"}})
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 bot_schema = set_bot_schema()
 # print(chat,question_answering_prompt,demo_ephemeral_chat_history)
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+WATCH_DIR = os.path.join(BASE_DIR, 'Frontend', 'flask-backend', 'assets')
 
 @app.route('/api/summary', methods=['GET'])
 def get_summary():
@@ -70,11 +74,11 @@ def interest():
 
     return update_interest(interests,user_id,interests_list)
 
-@app.route('/api/videos/<topic>', methods=['GET'])
-def get_videos(topic):
-    response = find_videos(topic)
-    print(response)
-    return jsonify({'response': response})
+# @app.route('/api/videos/<topic>', methods=['GET'])
+# def get_videos(topic):
+#     response = find_videos(topic)
+#     print(response)
+#     return jsonify({'response': response})
 
 
 @app.route('/api/chat', methods=['POST'])
@@ -108,6 +112,38 @@ def get_user_interests():
         return find_user_interests(db,user_id)
     else:
         return response_message
+    
+@app.route('/api/videos/<topic>', methods=['GET'])
+def get_videos(topic):
+    
+    
+    video_list = find_videos(topic)
+    print(video_list)
+    
+    if not video_list:
+        return jsonify({'error': 'No videos found for the given topic'}), 404
+    
+    
+    videos = []
+    for item in video_list:
+        
+        file = item['video_path']
+        
+        res=file[file.rindex('\\')+1:]
+        item['video_name']=res
+        print('dummy',item)
+        # return 
+
+    # return 'Test'
+    return video_list
+
+@app.route('/api/video/<topic>/<filename>', methods=['GET'])
+def serve_video(topic, filename):
+    base_path = os.path.join('assets', topic)
+    print('Hello')
+    print(topic, filename)
+    return send_from_directory(base_path,filename)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True,use_reloader=False)
