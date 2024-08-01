@@ -10,6 +10,8 @@ from langchain_openai import ChatOpenAI
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ChatMessageHistory
+from langchain.globals import set_llm_cache
+from langchain.cache import InMemoryCache
 from typing import Dict
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from dotenv import load_dotenv
@@ -129,6 +131,7 @@ def get_conversational_rag_chain(rag_chain):
     return conversational_rag_chain
 
 def invoke_conversational_chat(conversational_rag_chain,question,session_id):
+    set_llm_cache(InMemoryCache())
     response = conversational_rag_chain.invoke(
     {"input": question},
     config={
