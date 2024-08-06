@@ -4,7 +4,7 @@ def text_to_speech(text):
     try:
         tts_model = gTTS(text=text, lang='en', slow=False) # Change to false if faster version is needed
         
-        tts_model.save('temp_files/output.mp3')
+        tts_model.save('temp_audio_files/output.mp3')
         print('audio_generated!!')
     except Exception as e:
         raise e

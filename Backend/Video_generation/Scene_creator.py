@@ -10,7 +10,7 @@ def create_scenes(article_content):
     response = openai.ChatCompletion.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "You are a cinematographer, for the below content create 3 scenes with detail that can be used to create image in dalle3. Also note that the output should be in the following format  {'scene1':'description','scene2':'description','scene3':'description'}"},
+            {"role": "system", "content": "You are a cinematographer, for the below content create 3 scenes with detail that can be used to create image in dalle3. Also note that the output should be in the following format  scene1 /n scene2 /n scene3"},
             {"role": "user", "content": f"{article_content}"}
         ]
     )
@@ -19,8 +19,18 @@ def create_scenes(article_content):
         Scenes = response.choices[0].message['content']
         print("Created Scenes:\n", Scenes)
         
+        data_dict = {}
+        Scene_list = Scenes.split('\n')
+        for key, scene in enumerate(Scene_list):
+            if scene == '':
+                pass
+            else:
+                data_dict[key]= scene
+            
         # Convert the string to a Python dictionary
-        data_dict = ast.literal_eval(Scenes)
+        # data_dict = ast.literal_eval(Scenes)
+        # data_dict = json.loads(Scenes)
+        print(data_dict)
         return data_dict
     else:
         print("Nothing to Create scenes!.")

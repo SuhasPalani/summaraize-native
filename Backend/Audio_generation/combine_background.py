@@ -23,6 +23,6 @@ def background_audio(main_audio_file,background_music_files,combined_music,fade_
 background_music_files = ['Audio_generation/background_music_files/audio_file_1.mp3','Audio_generation/background_music_files/audio_file_2.mp3','Audio_generation/background_music_files/audio_file_3.mp3']
 
 if __name__ == "__main__":
-    background_audio('temp_files/output.mp3',background_music_files,'temp_files/combined.mp3')
+    background_audio('temp_audio_files/output.mp3',background_music_files,'temp_audio_files/combined.mp3')
 
 

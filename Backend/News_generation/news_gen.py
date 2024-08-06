@@ -57,7 +57,8 @@ def get_news_articles(query):
     parameters = {
         'q': query,
         'apiKey': api_key,
-        'pageSize': page_size,  
+        'pageSize': page_size, 
+        'lang' : 'en'
     }
     
     try:
@@ -95,10 +96,10 @@ def process_articles(query):
         
     return filename_list
 
-def newsapi_fun(interest):
-    filename_list_send = process_articles(interest)
+def newsapi_fun(a):
+    filename_list_send = process_articles(a)
     return filename_list_send
 
 if __name__ == '__main__':
-    interest = 'ai'
+    interest = 'artificial_intelligence'
     print(newsapi_fun(interest))
