@@ -1,6 +1,7 @@
 from News_generation.news_gen import *
 from Summarize.news_summarizer import *
-from Audio_generation import *
+from Audio_generation.audio_gen import *
+from Audio_generation.combine_background import *
 from Database.db_functions import *
 from Video_generation import *
 from Caption_generation.caption_gen import *
@@ -51,6 +52,8 @@ if __name__ == '__main__':
                 summarized_content = news_summaraize(data_store,item)
 
                 #audio generation
+                text_to_speech(summarized_content)
+                background_audio('temp_files/output.mp3',background_music_files,'temp_files/combined.mp3')
                 
-                
+                #video generation using Ai
                 
