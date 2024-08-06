@@ -1,11 +1,15 @@
-from Audio_generation.audio_gen import *
-from Audio_generation.combine_background import *
+import threading
 
-print(background_music_files)
-background_audio('temp_audio_files/output.mp3',background_music_files,'temp_audio_files/combined.mp3')
+def thread_function():
+    pass
 
+threads = []
+try:
+    for i in range(100000):  # Adjust the number as needed
+        thread = threading.Thread(target=thread_function)
+        thread.start()
+        threads.append(thread)
+except Exception as e:
+    print(f"An error occurred: {e}")
 
-# from pydub import AudioSegment
-
-# # Correct file path formatting
-# audio = AudioSegment.from_file(r'temp_audio_files/output.mp3')
+print(f"Number of threads created: {len(threads)}")

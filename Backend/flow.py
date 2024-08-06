@@ -3,8 +3,10 @@ from Summarize.news_summarizer import *
 from Audio_generation.audio_gen import *
 from Audio_generation.combine_background import *
 from Database.db_functions import *
-from Video_generation import *
-from Caption_generation.caption_gen import *
+from Video_generation.Scene_creator import *
+from Video_generation.dalle_image_gen import *
+from Video_generation.fal_video_gen import *
+from Caption_generation_and_final_video_creation.caption_gen import *
 import json
 from dataclasses import dataclass
 
@@ -56,4 +58,10 @@ if __name__ == '__main__':
                 background_audio('temp_files/output.mp3',background_music_files,'temp_files/combined.mp3')
                 
                 #video generation using Ai
+                scene_dict = create_scenes(summarized_content)
+                image_urls_dict = generate_multiple_images(scene_dict)
+                video_gen_thread(image_urls_dict)
+                
+                
+                
                 
