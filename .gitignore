@@ -1,4 +1,5 @@
 .env
+.DS_Store
 summaraizeUI
 Frontend/flask-backend/venv
 Frontend/flask-backend/path/
