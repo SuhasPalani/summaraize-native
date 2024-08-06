@@ -77,7 +77,6 @@ def get_news_articles(query):
         print(f"Failed to retrieve news articles. Error: {e}")
         return []
 
-
 filename_list = []
 def process_articles(query):
     """Processes articles related to the given query and saves them as JSON files."""
