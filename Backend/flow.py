@@ -5,6 +5,7 @@ from Audio_generation.combine_background import *
 from Database.db_functions import *
 from Video_generation.Scene_creator import *
 from Video_generation.dalle_image_gen import *
+from Video_generation.brx_image_gen import *
 from Video_generation.fal_video_gen import *
 from Video_generation.combine_video import *
 from Caption_generation_and_final_video_creation.caption_gen import *
@@ -61,12 +62,15 @@ if __name__ == '__main__':
                     
                     #video generation using Ai
                     scene_dict = create_scenes(summarized_content)
-                    image_urls_dict = generate_multiple_images(scene_dict)
+                    # image_urls_dict = generate_multiple_images(scene_dict)
+                    image_urls_dict = generate_multiple_brx_images(scene_dict)
                     video_gen_thread(image_urls_dict)
                     video_combine_fun()
                     
                     #caption generation and final video generation
                     video_path = gen_start(selected_interest)
-                    data_store.video_path = video_path
+                    split_path = video_path.split('native\\', 1)
+                    
+                    data_store.video_path = split_path[1]
                     
                     insert_video_details(data_store.video_path,data_store.article_url,data_store.interest)

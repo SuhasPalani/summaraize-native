@@ -20,7 +20,7 @@ wav_file = "temp_audio_files/output.wav"
 audio = AudioSegment.from_mp3(ref_audio_file)
 audio.export(wav_file, format="wav")
 
-audio_file = 'temp_audio_files/output.mp3'
+audio_file = 'temp_audio_files/combined.mp3'
 reference_json_file = "Caption_generation_and_final_video_creation/temp_json_files/recognized_speech.json"
 output_json_file = "Caption_generation_and_final_video_creation/temp_json_files/output.json"
 referece_video = 'temp_vid_files/combined_video.mp4'
