@@ -5,6 +5,7 @@ import threading
 from dotenv import load_dotenv
 from pathlib import Path
 from dalle_image_gen import generate_multiple_images
+from test import generate_multiple_brx_images
 
 load_dotenv()
 FAL_API_KEY = os.environ["FAL_API_KEY"]
@@ -66,7 +67,7 @@ def video_gen_fun(image_url, vid_num):
         return False
 
 if __name__ == "__main__":
-    image_urls_dict = generate_multiple_images("Chicago skyline", count=3)
+    image_urls_dict = generate_multiple_brx_images("Beach in the summer", count=3)
     if image_urls_dict:
 
         threads = []
