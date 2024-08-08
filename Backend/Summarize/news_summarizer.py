@@ -13,7 +13,6 @@ def summarize_news(news_content):
             {"role": "user", "content": f"{news_content}"}
         ]
     )
-    
     if response.choices:
         summarized_content = response.choices[0].message['content']
         print("Summarized news content:\n", summarized_content)

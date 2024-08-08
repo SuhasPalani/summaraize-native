@@ -14,7 +14,7 @@ from dataclasses import dataclass
 
 Interests_list = ['artificial_intellegence','business_and_finance','climate_change','crypto',
                   'electric_vehicles','entertainment','music','politics','science',
-                  'renewable_energy','space_exploration','sports','stock','technology']
+                  'renewable_energy','space_exploration','sports','stock','technology','travel']
 
 # Interests_list = ['ai'] ##remove after testing
 
@@ -42,7 +42,8 @@ def news_summaraize(data_store,item):
     return summarized_content
     
 if __name__ == '__main__':
-    for selected_interest in Interests_list:
+    for x in Interests_list:
+        selected_interest = x
         recieved_news_list = newsapi_fun(selected_interest)
         
         #news extraction
@@ -71,6 +72,11 @@ if __name__ == '__main__':
                     video_path = gen_start(selected_interest)
                     split_path = video_path.split('native\\', 1)
                     
-                    data_store.video_path = split_path[1]
+                    tune_path = split_path[1]
                     
-                    insert_video_details(data_store.video_path,data_store.article_url,data_store.interest)
+                    tune_path = tune_path.replace('/','\\')
+                    print(tune_path)
+                    data_store.video_path = tune_path
+                    print('123123 - ',data_store.video_path)
+                    
+                    insert_video_details(tune_path,data_store.article_url,data_store.interest)

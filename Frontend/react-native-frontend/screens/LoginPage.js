@@ -53,7 +53,7 @@ const LoginPage = ({ navigation }) => {
   }, []);
 
   const handleSubmit = async () => {
-    const endpoint = isSignUp ? `${API_URL}/api/signup` : `${API_URL}/api/login`;
+    const endpoint = isSignUp ? `http://192.168.184.34:5000/api/signup` : `http://192.168.184.34:5000/api/login`;
     try {
       setLoading(true);
       const response = await fetch(endpoint, {
@@ -92,7 +92,7 @@ const LoginPage = ({ navigation }) => {
 
   const check_user_interest = async (token) => {
     setLoading(true);
-    const response = await fetch(`${API_URL}/api/get_user_interests`, {
+    const response = await fetch(`http://192.168.184.34:5000/api/get_user_interests`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,

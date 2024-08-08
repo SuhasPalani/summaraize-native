@@ -33,7 +33,7 @@ export default function InterestScreen({ navigation }) {
     const fetchData = async () => {
       if (sessionID) {
         try {
-          const response = await fetch(`${API_URL}/api/get_user_interests`, {
+          const response = await fetch(`http://192.168.184.34:5000/api/get_user_interests`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${sessionID}`,
@@ -65,7 +65,7 @@ export default function InterestScreen({ navigation }) {
 
   const handleContinue = () => {
     setLoading(true);
-    fetch(`${API_URL}/api/interest`, {
+    fetch(`http://192.168.184.34:5000/api/interest`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

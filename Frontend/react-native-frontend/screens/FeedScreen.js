@@ -38,12 +38,12 @@ export default function FeedScreen({ route, navigation }) {
     // Fetch videos for the selected topic
     const fetchVideos = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/videos/${topic.name.toLowerCase().replace(/\s+/g, '_')}`);
+        const response = await fetch(`http://192.168.184.34:5000/api/videos/${topic.name.toLowerCase().replace(/\s+/g, '_')}`);
         const data = await response.json();
         if (data) {
           setVideos(data.map(video => ({
             ...video,
-            videoUrl: `${API_URL}/api/video/${topic.name.toLowerCase().replace(/\s+/g, '_')}/${video.video_name}`
+            videoUrl: `http://192.168.184.34:5000/api/video/${topic.name.toLowerCase().replace(/\s+/g, '_')}/${video.video_name}`
           })));
           setIsReady(new Array(data.length).fill(false));
         }

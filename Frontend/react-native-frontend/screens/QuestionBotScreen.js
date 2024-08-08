@@ -32,7 +32,7 @@ export default function QuestionBotScreen({route}) {
       setLoading(true);
 
       try {
-        const response = await fetch(`${API_URL}/api/chat`, {
+        const response = await fetch(`http://192.168.184.34:5000/api/chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
