@@ -241,7 +241,7 @@ export default function FeedScreen({ route, navigation }) {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              handleLink(item.article_link);
+              handleLink(item.article_link, item._id);
               animateButton();
             }}
           >
