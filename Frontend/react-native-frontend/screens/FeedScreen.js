@@ -242,6 +242,7 @@ export default function FeedScreen({ route, navigation }) {
             style={styles.button}
             onPress={() => {
               handleLink(item.article_link,item._id);
+
               animateButton();
             }}
           >
