@@ -12,12 +12,12 @@ from Caption_generation_and_final_video_creation.caption_gen import *
 import json
 from dataclasses import dataclass
 
-Interests_list = ['artificial_intellegence','business_and_finance','climate_change','crypto',
+Interests_list = ['artificial_intelligence','finance','climate_change','crypto',
                   'electric_vehicles','entertainment','music','politics','science',
-                  'renewable_energy','space_exploration','sports','stock','technology','travel']
+                  'renewable_energy','space','sports','stock','technology','travel']
 
-# Interests_list = ['ai'] ##remove after testing
-
+# Interests_list = ['artificial_intellegence'] ##remove after testing
+# Interests_list = ['travel']
 
 @dataclass
 class DataObject:
@@ -42,8 +42,7 @@ def news_summaraize(data_store,item):
     return summarized_content
     
 if __name__ == '__main__':
-    for x in Interests_list:
-        selected_interest = x
+    for selected_interest in Interests_list:
         recieved_news_list = newsapi_fun(selected_interest)
         
         #news extraction
@@ -79,4 +78,4 @@ if __name__ == '__main__':
                     data_store.video_path = tune_path
                     print('123123 - ',data_store.video_path)
                     
-                    insert_video_details(tune_path,data_store.article_url,data_store.interest)
+                    insert_video_details(data_store.video_path,data_store.article_url,data_store.interest)

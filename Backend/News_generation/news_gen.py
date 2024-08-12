@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 api_key = os.getenv('NEWS_API_KEY')
 url = os.getenv('NEWS_URL')
-page_size = 20 #no. of articles per request
+page_size = 5 #no. of articles per request
 
 def sanitize_filename(title):
     """Sanitizes the title to create a valid filename."""
@@ -101,5 +101,5 @@ def newsapi_fun(a):
     return filename_list_send
 
 if __name__ == '__main__':
-    interest = 'artificial_intelligence'
+    interest = 'finance'
     print(newsapi_fun(interest))
