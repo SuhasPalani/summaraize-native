@@ -6,3 +6,5 @@ Backend/path/
 Frontend/flask-backend/assets
 *.pyc
 **/__pycache__/
+Backend/Json_folder/
+.json

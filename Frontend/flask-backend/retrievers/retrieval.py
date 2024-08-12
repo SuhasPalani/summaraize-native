@@ -1,5 +1,8 @@
 import re
 import bs4
+from bs4 import BeautifulSoup
+from langchain.schema import Document
+import requests
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
@@ -71,13 +74,17 @@ def set_bot_schema():
 
 
 def response_retriever(url, question,session_id, bot_schema):
+    print("URL not validated")
     if validate_url(url):
         data = load_data_from_web(url)
+        print("Before split", data)
         vectorstore = doc_splitter(data)
+        print("URL not validated")
         retriever = vectorstore.as_retriever(k=4)
         history_aware_retriever = create_history_aware_retriever(
             bot_schema.chat, retriever, bot_schema.contextualize_q_prompt
         )
+        print("URL validated")
         retrieval_chain = get_retreiver_chain(history_aware_retriever, bot_schema.chat, bot_schema.question_answering_prompt)
         conversational_rag_chain = get_conversational_rag_chain(retrieval_chain)
         response = invoke_conversational_chat(conversational_rag_chain,question,session_id)
@@ -85,23 +92,44 @@ def response_retriever(url, question,session_id, bot_schema):
     else:
         return "Invalid news source"
     
+def get_web_page_content(url):
+    """Fetches content from the specified URL."""
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.text
+    except requests.RequestException as e:
+        print(f"Failed to retrieve web page. Error: {e}")
+        return None
+    
 def load_data_from_web(url):
     ### Construct retriever ###
-    loader = WebBaseLoader(
-        web_paths=(url,),
-        bs_kwargs=dict(
-            parse_only=bs4.SoupStrainer(
-                class_=("post-content", "post-title", "post-header")
-            )
-        ),
-    )
-    data = loader.load()
+    # loader = WebBaseLoader(
+    #     web_paths=(url,),
+    #     bs_kwargs=dict(
+    #         parse_only=bs4.SoupStrainer(
+    #             class_=("post-content", "post-title", "post-header")
+    #         )
+    #     ),
+    # )
+    # data = loader.load()
+    # return data
+    """Parses the HTML content to extract contemmmnt paragraphs."""
+    html_content = get_web_page_content(url)
+    soup = BeautifulSoup(html_content, 'html.parser')
+    content_paragraphs = soup.find_all('p')
+    data = '\n'.join(p.text.strip() for p in content_paragraphs)
     return data
 
 def doc_splitter(data):
+    print('spliting')
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    all_splits = text_splitter.split_documents(data)
+    print('spliting1')
+    document = Document(page_content=data)
+    all_splits = text_splitter.split_documents([document])
+    print('spliting2', all_splits)
     vectorstore = Chroma.from_documents(documents=all_splits, embedding=OpenAIEmbeddings())
+    print('spliting3')
     return vectorstore
 
 def get_retreiver_chain(history_aware_retriever, chat, question_answering_prompt):

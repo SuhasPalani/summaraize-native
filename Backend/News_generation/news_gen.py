@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 api_key = os.getenv('NEWS_API_KEY')
 url = os.getenv('NEWS_URL')
-page_size = 20 #no. of articles per request
+page_size = 5 #no. of articles per request
 
 def sanitize_filename(title):
     """Sanitizes the title to create a valid filename."""
@@ -57,7 +57,8 @@ def get_news_articles(query):
     parameters = {
         'q': query,
         'apiKey': api_key,
-        'pageSize': page_size,  
+        'pageSize': page_size, 
+        'lang' : 'en'
     }
     
     try:
@@ -77,7 +78,6 @@ def get_news_articles(query):
         print(f"Failed to retrieve news articles. Error: {e}")
         return []
 
-
 filename_list = []
 def process_articles(query):
     """Processes articles related to the given query and saves them as JSON files."""
@@ -96,10 +96,10 @@ def process_articles(query):
         
     return filename_list
 
-def newsapi_fun(interest):
-    filename_list_send = process_articles(interest)
+def newsapi_fun(a):
+    filename_list_send = process_articles(a)
     return filename_list_send
 
 if __name__ == '__main__':
-    interest = 'ai'
+    interest = 'finance'
     print(newsapi_fun(interest))

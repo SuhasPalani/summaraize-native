@@ -1,0 +1,587 @@
+[
+    {
+        "result": [
+            {
+                "conf": 1.0,
+                "end": 0.57,
+                "start": 0.06,
+                "word": "recent"
+            },
+            {
+                "conf": 1.0,
+                "end": 1.02,
+                "start": 0.57,
+                "word": "severe"
+            },
+            {
+                "conf": 1.0,
+                "end": 1.71,
+                "start": 1.02,
+                "word": "rainfall"
+            },
+            {
+                "conf": 1.0,
+                "end": 1.83,
+                "start": 1.71,
+                "word": "in"
+            },
+            {
+                "conf": 1.0,
+                "end": 1.92,
+                "start": 1.83,
+                "word": "the"
+            },
+            {
+                "conf": 1.0,
+                "end": 2.28,
+                "start": 1.92,
+                "word": "greater"
+            },
+            {
+                "conf": 1.0,
+                "end": 2.91,
+                "start": 2.28,
+                "word": "toronto"
+            },
+            {
+                "conf": 1.0,
+                "end": 3.3,
+                "start": 2.91,
+                "word": "area"
+            },
+            {
+                "conf": 1.0,
+                "end": 3.72,
+                "start": 3.33,
+                "word": "caused"
+            },
+            {
+                "conf": 1.0,
+                "end": 4.35,
+                "start": 3.72,
+                "word": "widespread"
+            },
+            {
+                "conf": 1.0,
+                "end": 5.1,
+                "start": 4.35,
+                "word": "chaos"
+            },
+            {
+                "conf": 1.0,
+                "end": 5.97,
+                "start": 5.49,
+                "word": "leading"
+            },
+            {
+                "conf": 1.0,
+                "end": 6.15,
+                "start": 5.97,
+                "word": "to"
+            },
+            {
+                "conf": 1.0,
+                "end": 6.84,
+                "start": 6.15,
+                "word": "extensive"
+            },
+            {
+                "conf": 1.0,
+                "end": 7.41,
+                "start": 6.84,
+                "word": "flooding"
+            },
+            {
+                "conf": 1.0,
+                "end": 8.13,
+                "start": 7.68,
+                "word": "power"
+            },
+            {
+                "conf": 1.0,
+                "end": 8.76,
+                "start": 8.13,
+                "word": "outages"
+            },
+            {
+                "conf": 1.0,
+                "end": 8.94,
+                "start": 8.76,
+                "word": "for"
+            },
+            {
+                "conf": 1.0,
+                "end": 9.15,
+                "start": 8.94,
+                "word": "one"
+            },
+            {
+                "conf": 1.0,
+                "end": 9.51,
+                "start": 9.15,
+                "word": "hundred"
+            },
+            {
+                "conf": 1.0,
+                "end": 9.93,
+                "start": 9.51,
+                "word": "sixty"
+            },
+            {
+                "conf": 1.0,
+                "end": 10.32,
+                "start": 9.93,
+                "word": "seven"
+            },
+            {
+                "conf": 1.0,
+                "end": 10.77,
+                "start": 10.32,
+                "word": "thousand"
+            },
+            {
+                "conf": 1.0,
+                "end": 11.58,
+                "start": 10.77,
+                "word": "residents"
+            },
+            {
+                "conf": 1.0,
+                "end": 12.18,
+                "start": 12.0,
+                "word": "and"
+            },
+            {
+                "conf": 1.0,
+                "end": 12.96,
+                "start": 12.18,
+                "word": "significant"
+            },
+            {
+                "conf": 0.60882,
+                "end": 13.74,
+                "start": 12.96,
+                "word": "disruptions"
+            },
+            {
+                "conf": 1.0,
+                "end": 13.89,
+                "start": 13.74,
+                "word": "to"
+            },
+            {
+                "conf": 1.0,
+                "end": 15.0,
+                "start": 13.89,
+                "word": "transportation"
+            },
+            {
+                "conf": 1.0,
+                "end": 15.9,
+                "start": 15.39,
+                "word": "critics"
+            },
+            {
+                "conf": 1.0,
+                "end": 16.23,
+                "start": 15.9,
+                "word": "blame"
+            },
+            {
+                "conf": 1.0,
+                "end": 16.35,
+                "start": 16.23,
+                "word": "the"
+            },
+            {
+                "conf": 1.0,
+                "end": 16.95,
+                "start": 16.35,
+                "word": "provincial"
+            },
+            {
+                "conf": 1.0,
+                "end": 17.52,
+                "start": 16.95,
+                "word": "government"
+            },
+            {
+                "conf": 1.0,
+                "end": 17.82,
+                "start": 17.55,
+                "word": "under"
+            },
+            {
+                "conf": 1.0,
+                "end": 18.15,
+                "start": 17.82,
+                "word": "doug"
+            },
+            {
+                "conf": 1.0,
+                "end": 18.6,
+                "start": 18.15,
+                "word": "ford"
+            },
+            {
+                "conf": 1.0,
+                "end": 18.78,
+                "start": 18.6,
+                "word": "for"
+            },
+            {
+                "conf": 1.0,
+                "end": 19.14,
+                "start": 18.78,
+                "word": "cuts"
+            },
+            {
+                "conf": 1.0,
+                "end": 19.26,
+                "start": 19.14,
+                "word": "to"
+            },
+            {
+                "conf": 1.0,
+                "end": 19.59,
+                "start": 19.26,
+                "word": "flood"
+            },
+            {
+                "conf": 1.0,
+                "end": 20.16,
+                "start": 19.59,
+                "word": "management"
+            }
+        ],
+        "text": "recent severe rainfall in the greater toronto area caused widespread chaos leading to extensive flooding power outages for one hundred sixty seven thousand residents and significant disruptions to transportation critics blame the provincial government under doug ford for cuts to flood management"
+    },
+    {
+        "result": [
+            {
+                "conf": 1.0,
+                "end": 20.67,
+                "start": 20.22,
+                "word": "funding"
+            },
+            {
+                "conf": 0.67487,
+                "end": 21.0,
+                "start": 20.67,
+                "word": "an"
+            },
+            {
+                "conf": 1.0,
+                "end": 22.65,
+                "start": 21.75,
+                "word": "environmental"
+            },
+            {
+                "conf": 1.0,
+                "end": 23.73,
+                "start": 22.65,
+                "word": "regulations"
+            },
+            {
+                "conf": 1.0,
+                "end": 24.66,
+                "start": 24.0,
+                "word": "highlighting"
+            },
+            {
+                "conf": 1.0,
+                "end": 24.78,
+                "start": 24.66,
+                "word": "the"
+            },
+            {
+                "conf": 1.0,
+                "end": 25.11,
+                "start": 24.78,
+                "word": "need"
+            },
+            {
+                "conf": 1.0,
+                "end": 25.35,
+                "start": 25.14,
+                "word": "for"
+            },
+            {
+                "conf": 1.0,
+                "end": 25.74,
+                "start": 25.35,
+                "word": "urgent"
+            },
+            {
+                "conf": 1.0,
+                "end": 26.19,
+                "start": 25.74,
+                "word": "climate"
+            },
+            {
+                "conf": 1.0,
+                "end": 26.58,
+                "start": 26.19,
+                "word": "change"
+            },
+            {
+                "conf": 1.0,
+                "end": 27.51,
+                "start": 26.58,
+                "word": "preparedness"
+            },
+            {
+                "conf": 1.0,
+                "end": 28.35,
+                "start": 27.93,
+                "word": "calls"
+            },
+            {
+                "conf": 0.790174,
+                "end": 28.44,
+                "start": 28.35,
+                "word": "are"
+            },
+            {
+                "conf": 1.0,
+                "end": 28.89,
+                "start": 28.44,
+                "word": "growing"
+            },
+            {
+                "conf": 1.0,
+                "end": 29.1,
+                "start": 28.89,
+                "word": "for"
+            },
+            {
+                "conf": 0.811113,
+                "end": 29.16,
+                "start": 29.1,
+                "word": "a"
+            },
+            {
+                "conf": 1.0,
+                "end": 29.61,
+                "start": 29.165665,
+                "word": "federal"
+            },
+            {
+                "conf": 1.0,
+                "end": 30.09,
+                "start": 29.61,
+                "word": "tax"
+            },
+            {
+                "conf": 1.0,
+                "end": 30.27,
+                "start": 30.09,
+                "word": "on"
+            },
+            {
+                "conf": 1.0,
+                "end": 30.51,
+                "start": 30.27,
+                "word": "big"
+            },
+            {
+                "conf": 1.0,
+                "end": 30.81,
+                "start": 30.51,
+                "word": "oil"
+            },
+            {
+                "conf": 1.0,
+                "end": 31.41,
+                "start": 30.81,
+                "word": "profits"
+            },
+            {
+                "conf": 1.0,
+                "end": 31.56,
+                "start": 31.41,
+                "word": "to"
+            },
+            {
+                "conf": 1.0,
+                "end": 32.04,
+                "start": 31.56,
+                "word": "support"
+            },
+            {
+                "conf": 1.0,
+                "end": 32.52,
+                "start": 32.04,
+                "word": "climate"
+            },
+            {
+                "conf": 1.0,
+                "end": 32.97,
+                "start": 32.52,
+                "word": "action"
+            },
+            {
+                "conf": 1.0,
+                "end": 33.09,
+                "start": 32.97,
+                "word": "and"
+            },
+            {
+                "conf": 1.0,
+                "end": 33.72,
+                "start": 33.09,
+                "word": "assist"
+            },
+            {
+                "conf": 1.0,
+                "end": 35.22,
+                "start": 34.47,
+                "word": "communities"
+            },
+            {
+                "conf": 1.0,
+                "end": 35.88,
+                "start": 35.22,
+                "word": "impacted"
+            },
+            {
+                "conf": 1.0,
+                "end": 36.06,
+                "start": 35.88,
+                "word": "by"
+            },
+            {
+                "conf": 1.0,
+                "end": 36.42,
+                "start": 36.06,
+                "word": "such"
+            },
+            {
+                "conf": 1.0,
+                "end": 37.44,
+                "start": 36.42,
+                "word": "disasters"
+            },
+            {
+                "conf": 1.0,
+                "end": 38.1,
+                "start": 37.86,
+                "word": "as"
+            },
+            {
+                "conf": 1.0,
+                "end": 38.58,
+                "start": 38.1,
+                "word": "climate"
+            },
+            {
+                "conf": 1.0,
+                "end": 39.03,
+                "start": 38.58,
+                "word": "events"
+            },
+            {
+                "conf": 1.0,
+                "end": 39.42,
+                "start": 39.03,
+                "word": "become"
+            },
+            {
+                "conf": 1.0,
+                "end": 39.69,
+                "start": 39.42,
+                "word": "more"
+            },
+            {
+                "conf": 1.0,
+                "end": 40.32,
+                "start": 39.69,
+                "word": "frequent"
+            }
+        ],
+        "text": "funding an environmental regulations highlighting the need for urgent climate change preparedness calls are growing for a federal tax on big oil profits to support climate action and assist communities impacted by such disasters as climate events become more frequent"
+    },
+    {
+        "result": [
+            {
+                "conf": 1.0,
+                "end": 41.34,
+                "start": 40.74,
+                "word": "advocates"
+            },
+            {
+                "conf": 0.821936,
+                "end": 41.82,
+                "start": 41.34,
+                "word": "stress"
+            },
+            {
+                "conf": 1.0,
+                "end": 41.97,
+                "start": 41.825343,
+                "word": "the"
+            },
+            {
+                "conf": 1.0,
+                "end": 42.6,
+                "start": 41.97,
+                "word": "importance"
+            },
+            {
+                "conf": 1.0,
+                "end": 42.75,
+                "start": 42.6,
+                "word": "of"
+            },
+            {
+                "conf": 1.0,
+                "end": 43.17,
+                "start": 42.75,
+                "word": "holding"
+            },
+            {
+                "conf": 1.0,
+                "end": 43.83,
+                "start": 43.17,
+                "word": "polluters"
+            },
+            {
+                "conf": 1.0,
+                "end": 44.55,
+                "start": 43.83,
+                "word": "accountable"
+            },
+            {
+                "conf": 1.0,
+                "end": 44.64,
+                "start": 44.55,
+                "word": "and"
+            },
+            {
+                "conf": 1.0,
+                "end": 45.27,
+                "start": 44.64,
+                "word": "investing"
+            },
+            {
+                "conf": 0.580855,
+                "end": 45.39,
+                "start": 45.27,
+                "word": "in"
+            },
+            {
+                "conf": 1.0,
+                "end": 46.23,
+                "start": 45.39,
+                "word": "sustainable"
+            },
+            {
+                "conf": 1.0,
+                "end": 48.15,
+                "start": 46.95,
+                "word": "infrastructure"
+            }
+        ],
+        "text": "advocates stress the importance of holding polluters accountable and investing in sustainable infrastructure"
+    }
+]

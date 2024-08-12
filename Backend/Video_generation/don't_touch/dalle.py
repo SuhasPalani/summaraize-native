@@ -25,4 +25,4 @@ def generate_image(prompt, n=1, size="1024x1024"):
 
 if __name__ == '__main__':
 # Example usage
-    generate_image("donkey riding car in an indian highway")
+    generate_image("A cozy living room environment where a group of friends is gathered to watch the Arsenal vs. Brentford match via streaming. The camera angles showcase a large flat-screen TV displaying the live match, with the friends excitedly cheering and discussing the game. One person holds a smartphone displaying the ExpressVPN app on the screen, symbolizing their effort to watch the game from their desired location. The room is decorated with football memorabilia, such as jerseys, signed balls, and a coffee table filled with snacks and drinks. Warm lighting enhances the inviting atmosphere, and a window in the background shows a hint of a setting sun, giving a sense of camaraderie and excitement for the match ahead.")
